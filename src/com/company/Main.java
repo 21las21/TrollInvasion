@@ -12,13 +12,37 @@ public class Main {
         int readyPlayers = 0;
         String read = scanner.nextLine();
         while (read != "Starting game") {
-            String name = read.substring(1);
-
-            if (read.startsWith("+") && (!players.contains(new Player(name, false)))) {
-                players.add(new Player(name, false));
+            Player player = null;
+            boolean exist = false;
+            String name;
+            if (read.startsWith("+")) {
+                name = read.substring(1);
+                for (Player player1 : players) {
+                    if (player1.Name.equals(name)) {
+                        player = player1;
+                        exist = true;
+                        break;
+                    }
+                }
+                if (player == null)
+                    player = new Player(name, false);
+                if (!exist) {
+                    players.add(player);
+                }
             }
-            else if (read.startsWith("Ready") && players.contains(new Player(read.substring(6), false))) {
-                readyPlayers++;
+            else if (read.startsWith("Ready")){
+                name = read.substring(6);
+                for (Player player1 : players) {
+                    if (player1.Name.equals(name)) {
+                        player = player1;
+                        exist = true;
+                        break;
+                    }
+                }
+                if (exist && player.Ready == false) {
+                    player.Ready = true;
+                    readyPlayers++;
+                }
             }
             if (readyPlayers > 0 && players.size() == readyPlayers) {
                 read = "Starting game";
