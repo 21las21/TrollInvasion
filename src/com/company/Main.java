@@ -13,34 +13,30 @@ public class Main {
         String read = scanner.nextLine();
         while (read != "Starting game") {
             Player player = null;
-            boolean exist = false;
             String name;
             if (read.startsWith("+")) {
                 name = read.substring(1);
                 for (Player player1 : players) {
-                    if (player1.Name.equals(name)) {
+                    if (player1.name.equals(name)) {
                         player = player1;
-                        exist = true;
                         break;
                     }
                 }
-                if (player == null)
+                if (player == null) {
                     player = new Player(name, false);
-                if (!exist) {
                     players.add(player);
                 }
             }
-            else if (read.startsWith("Ready")){
+            else if (read.startsWith("ready")){
                 name = read.substring(6);
                 for (Player player1 : players) {
-                    if (player1.Name.equals(name)) {
+                    if (player1.name.equals(name)) {
                         player = player1;
-                        exist = true;
                         break;
                     }
                 }
-                if (exist && player.Ready == false) {
-                    player.Ready = true;
+                if (player != null && player.ready == false) {
+                    player.ready = true;
                     readyPlayers++;
                 }
             }
@@ -52,7 +48,7 @@ public class Main {
             read = scanner.nextLine();
         }
         for (int i = 0; i < players.size(); i++) {
-            System.out.println(players.get(i).Name);
+            System.out.println(players.get(i).name);
         }
 
         System.out.println("Generating map");

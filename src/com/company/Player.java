@@ -1,14 +1,12 @@
 package com.company;
 
-import java.util.Objects;
-
 public class Player {
-    String Name;
-    boolean Ready;
+    String name;
+    boolean ready;
 
     public Player(String name, boolean ready) {
-        Name = name;
-        Ready = ready;
+        this.name = name;
+        this.ready = ready;
     }
 
     @Override
@@ -18,14 +16,14 @@ public class Player {
 
         Player player = (Player) o;
 
-        //if (Ready != player.Ready) return false;
-        return Name != null ? Name.equals(player.Name) : player.Name == null;
+        //if (ready != player.ready) return false;
+        return name != null ? name.equals(player.name) : player.name == null;
     }
 
     @Override
     public int hashCode() {
-        int result = Name != null ? Name.hashCode() : 0;
-        result = 31 * result + (Ready ? 1 : 0);
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (ready ? 1 : 0);
         return result;
     }
 }
