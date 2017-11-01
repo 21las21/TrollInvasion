@@ -107,7 +107,7 @@ public class Main {
                     cordI = Integer.parseInt(select[0]);
                     cordJ = Integer.parseInt(select[1]);
                     selectedCell = cells[cordI][cordJ];
-                    if (selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
+                    if ((cordI + cordJ) % 2 != 0 || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
                         System.out.println("Invalid choice!");
                     } else {
                         break;
@@ -183,8 +183,10 @@ public class Main {
                     }
                 }
                 upgrade = line.substring(2).split(" ");
-                upgradeCell = cells[Integer.parseInt(upgrade[0])][Integer.parseInt(upgrade[1])];
-                if (upgradeCell.player != players.get(playerTurn)) {
+                int upI = Integer.parseInt(upgrade[0]);
+                int upJ = Integer.parseInt(upgrade[1]);
+                upgradeCell = cells[upI][upJ];
+                if ((upI + upJ) % 2 != 0 || upgradeCell.player != players.get(playerTurn)) {
                     System.out.println("Invalid choice!");
                 }
                 else {
