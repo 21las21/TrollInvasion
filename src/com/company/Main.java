@@ -146,8 +146,8 @@ public class Main {
                 while (true) {
                     String[] go;
                     String line;
-                    int goI = 0;
-                    int goJ = 0;
+                    int goI;
+                    int goJ;
                     while (true) {
                         line = scanner.nextLine();
                         if (line.startsWith(players.get(playerTurn).name + ":")) {
@@ -186,7 +186,20 @@ public class Main {
                     }
                     selectedCell.unit = 1;
                 }
+                boolean enemyExist = false;
+                for (int i = 0; i < mapI; i++) {
+                    for (int j = 0; j < mapJ; j++) {
+                        if (cells[i][j] != null && cells[i][j].player != null && cells[i][j].player != players.get(playerTurn)) {
+                            enemyExist = true;
+                            break;
+                        }
+                    }
+                }
                 mapPrint(cells);
+                if (!enemyExist) {
+                    System.out.println(players.get(playerTurn).name + " " + "won!");
+                    return;
+                }
             }
             //First phase end
 
