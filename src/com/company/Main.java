@@ -87,118 +87,125 @@ public class Main {
         int playerTurn = 0;
         while (true) {
             //First phase start
-            while (true) {
-                System.out.print(players.get(playerTurn).name);
-                System.out.println("'s turn");
-                int cordI = 0;
-                int cordJ = 0;
-                Cell selectedCell = null;
-                boolean good = false;
-                for (int i = 0; i < mapI; i++) {
-                    for (int j = 0; j < mapJ; j++) {
-                        if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
-                            good = true;
-                        }
-                    }
-                }
-                if (!good) {
-                    break;
-                }
+            first:
+            {
                 while (true) {
-                    String[] select;
-                    String line;
-                    while (true) {
-                        line = scanner.nextLine();
-                        if (line.startsWith(players.get(playerTurn).name + ":")) {
-                            good = true;
-                            select = line.split(":")[1].split(" ");
-                            try {
-                                cordI = Integer.parseInt(select[0]);
-                                cordJ = Integer.parseInt(select[1]);
-                                selectedCell = cells[cordI][cordJ];
-                            } catch (Exception exc) {
-                                System.out.println("Invalid input!");
-                                good = false;
-                            }
-                            if (good) {
-                                break;
+                    System.out.print(players.get(playerTurn).name);
+                    System.out.println("'s turn");
+                    int cordI = 0;
+                    int cordJ = 0;
+                    Cell selectedCell = null;
+                    boolean good = false;
+                    for (int i = 0; i < mapI; i++) {
+                        for (int j = 0; j < mapJ; j++) {
+                            if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
+                                good = true;
                             }
                         }
                     }
-                    if (selectedCell == null || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
-                        System.out.println("Invalid choice!");
-                    } else {
-                        System.out.println("Selected cell: " + cordI + " " + cordJ);
+                    if (!good) {
                         break;
                     }
-                }
-                ArrayList<Cell> nearCells = new ArrayList<>();
-                for (int i = 0; i < mapI; i++) {
-                    for (int j = 0; j < mapJ; j++) {
-                        int dI = Math.abs(cordI - i);
-                        int dJ = Math.abs(cordJ - j);
-                        if ((dI == 2 && dJ == 0) || (dI == 1 && dJ == 1)) {
-                            nearCells.add(cells[i][j]);
-                        }
-                    }
-                }
-                Cell goCell = null;
-                while (true) {
-                    String[] go;
-                    String line;
-                    int goI;
-                    int goJ;
                     while (true) {
-                        line = scanner.nextLine();
-                        if (line.startsWith(players.get(playerTurn).name + ":")) {
-                            good = true;
-                            go = line.split(":")[1].split(" ");
-                            try {
-                                goI = Integer.parseInt(go[0]);
-                                goJ = Integer.parseInt(go[1]);
-                                goCell = cells[goI][goJ];
-                            } catch (Exception exc) {
-                                System.out.println("Invalid input!");
-                                good = false;
-                            }
-                            if (good) {
-                                break;
+                        String[] select;
+                        String line;
+                        while (true) {
+                            line = scanner.nextLine();
+                            if (line.startsWith(players.get(playerTurn).name + ":")) {
+                                good = true;
+                                line = line.split(":")[1];
+                                if (line.toLowerCase().equals("next phase")) {
+                                    break first;
+                                }
+                                select = line.split(" ");
+                                try {
+                                    cordI = Integer.parseInt(select[0]);
+                                    cordJ = Integer.parseInt(select[1]);
+                                    selectedCell = cells[cordI][cordJ];
+                                } catch (Exception exc) {
+                                    System.out.println("Invalid input!");
+                                    good = false;
+                                }
+                                if (good) {
+                                    break;
+                                }
                             }
                         }
-                    }
-                    if (!nearCells.contains(goCell)) {
-                        System.out.println("Invalid choice!");
-                    } else {
-                        break;
-                    }
-                }
-                if (goCell.player == null) {
-                    goCell.player = players.get(playerTurn);
-                    goCell.unit = selectedCell.unit - 1;
-                    selectedCell.unit = 1;
-                } else {
-                    if (selectedCell.unit > goCell.unit) {
-                        goCell.player = players.get(playerTurn);
-                    }
-                    goCell.unit = Math.abs(selectedCell.unit - goCell.unit);
-                    if (goCell.unit == 0) {
-                        goCell.unit = 1;
-                    }
-                    selectedCell.unit = 1;
-                }
-                boolean enemyExist = false;
-                for (int i = 0; i < mapI; i++) {
-                    for (int j = 0; j < mapJ; j++) {
-                        if (cells[i][j] != null && cells[i][j].player != null && cells[i][j].player != players.get(playerTurn)) {
-                            enemyExist = true;
+                        if (selectedCell == null || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
+                            System.out.println("Invalid choice!");
+                        } else {
+                            System.out.println("Selected cell: " + cordI + " " + cordJ);
                             break;
                         }
                     }
-                }
-                mapPrint(cells);
-                if (!enemyExist) {
-                    System.out.println(players.get(playerTurn).name + " " + "won!");
-                    return;
+                    ArrayList<Cell> nearCells = new ArrayList<>();
+                    for (int i = 0; i < mapI; i++) {
+                        for (int j = 0; j < mapJ; j++) {
+                            int dI = Math.abs(cordI - i);
+                            int dJ = Math.abs(cordJ - j);
+                            if ((dI == 2 && dJ == 0) || (dI == 1 && dJ == 1)) {
+                                nearCells.add(cells[i][j]);
+                            }
+                        }
+                    }
+                    Cell goCell = null;
+                    while (true) {
+                        String[] go;
+                        String line;
+                        int goI;
+                        int goJ;
+                        while (true) {
+                            line = scanner.nextLine();
+                            if (line.startsWith(players.get(playerTurn).name + ":")) {
+                                good = true;
+                                go = line.split(":")[1].split(" ");
+                                try {
+                                    goI = Integer.parseInt(go[0]);
+                                    goJ = Integer.parseInt(go[1]);
+                                    goCell = cells[goI][goJ];
+                                } catch (Exception exc) {
+                                    System.out.println("Invalid input!");
+                                    good = false;
+                                }
+                                if (good) {
+                                    break;
+                                }
+                            }
+                        }
+                        if (!nearCells.contains(goCell)) {
+                            System.out.println("Invalid choice!");
+                        } else {
+                            break;
+                        }
+                    }
+                    if (goCell.player == null) {
+                        goCell.player = players.get(playerTurn);
+                        goCell.unit = selectedCell.unit - 1;
+                        selectedCell.unit = 1;
+                    } else {
+                        if (selectedCell.unit > goCell.unit) {
+                            goCell.player = players.get(playerTurn);
+                        }
+                        goCell.unit = Math.abs(selectedCell.unit - goCell.unit);
+                        if (goCell.unit == 0) {
+                            goCell.unit = 1;
+                        }
+                        selectedCell.unit = 1;
+                    }
+                    boolean enemyExist = false;
+                    for (int i = 0; i < mapI; i++) {
+                        for (int j = 0; j < mapJ; j++) {
+                            if (cells[i][j] != null && cells[i][j].player != null && cells[i][j].player != players.get(playerTurn)) {
+                                enemyExist = true;
+                                break;
+                            }
+                        }
+                    }
+                    mapPrint(cells);
+                    if (!enemyExist) {
+                        System.out.println(players.get(playerTurn).name + " " + "won!");
+                        return;
+                    }
                 }
             }
             //First phase end
@@ -217,40 +224,46 @@ public class Main {
             System.out.println("You have " + energy + " energy left");
             Cell upgradeCell = null;
             boolean good;
-            while (true) {
-                String[] upgrade;
-                String line;
-                int upI;
-                int upJ;
+            second:
+            {
                 while (true) {
-                    line = scanner.nextLine();
-                    if (line.startsWith(players.get(playerTurn).name + ":")) {
-                        good = true;
-                        upgrade = line.split(":")[1].split(" ");
-                        try {
-                            upI = Integer.parseInt(upgrade[0]);
-                            upJ = Integer.parseInt(upgrade[1]);
-                            upgradeCell = cells[upI][upJ];
-                        } catch (Exception exc) {
-                            System.out.println("Invalid input!");
-                            good = false;
-                        }
-                        if (good) {
-                            break;
+                    String[] upgrade;
+                    String line;
+                    int upI;
+                    int upJ;
+                    while (true) {
+                        line = scanner.nextLine();
+                        if (line.startsWith(players.get(playerTurn).name + ":")) {
+                            good = true;
+                            line = line.split(":")[1];
+                            if (line.toLowerCase().equals("next phase")) {
+                                break second;
+                            }
+                            upgrade = line.split(" ");
+                            try {
+                                upI = Integer.parseInt(upgrade[0]);
+                                upJ = Integer.parseInt(upgrade[1]);
+                                upgradeCell = cells[upI][upJ];
+                            } catch (Exception exc) {
+                                System.out.println("Invalid input!");
+                                good = false;
+                            }
+                            if (good) {
+                                break;
+                            }
                         }
                     }
-                }
-                if (upgradeCell == null || upgradeCell.player != players.get(playerTurn)) {
-                    System.out.println("Invalid choice!");
-                }
-                else {
-                    energy--;
-                    upgradeCell.unit++;
-                    mapPrint(cells);
-                    System.out.println(energy + " energy left");
-                }
-                if (energy == 0) {
-                    break;
+                    if (upgradeCell == null || upgradeCell.player != players.get(playerTurn)) {
+                        System.out.println("Invalid choice!");
+                    } else {
+                        energy--;
+                        upgradeCell.unit++;
+                        mapPrint(cells);
+                        System.out.println(energy + " energy left");
+                    }
+                    if (energy == 0) {
+                        break;
+                    }
                 }
             }
 
