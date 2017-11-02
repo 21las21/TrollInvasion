@@ -44,6 +44,7 @@ public class Main {
                     if (player != null && !player.ready) {
                         player.ready = true;
                         readyPlayers++;
+                        System.out.println(player.name + " ready");
                     }
                 }
             }
@@ -143,7 +144,7 @@ public class Main {
                         for (int j = 0; j < mapJ; j++) {
                             int dI = Math.abs(cordI - i);
                             int dJ = Math.abs(cordJ - j);
-                            if ((dI == 2 && dJ == 0) || (dI == 1 && dJ == 1)) {
+                            if ((dI == 0 && dJ == 2) || (dI == 1 && dJ == 1)) {
                                 nearCells.add(cells[i][j]);
                             }
                         }
@@ -172,7 +173,7 @@ public class Main {
                                 }
                             }
                         }
-                        if (!nearCells.contains(goCell)) {
+                        if (!nearCells.contains(goCell) || (goCell.player != null && goCell.player.equals(players.get(playerTurn)))) {
                             System.out.println("Invalid choice!");
                         } else {
                             break;
