@@ -254,7 +254,7 @@ public class Main {
                             }
                         }
                     }
-                    if (upgradeCell == null || upgradeCell.player != players.get(playerTurn)) {
+                    if (upgradeCell == null || upgradeCell.player != players.get(playerTurn) || (upgradeCell.unit + 1) > upgradeCell.maxUnit) {
                         System.out.println("Invalid choice!");
                     } else {
                         energy--;
