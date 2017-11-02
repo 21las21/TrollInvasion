@@ -28,17 +28,21 @@ public class Main {
                     players.add(player);
                 }
             }
-            else if (read.toLowerCase().startsWith("ready")){
-                name = read.substring(6);
-                for (Player player1 : players) {
-                    if (player1.name.equals(name)) {
-                        player = player1;
-                        break;
+            else if (read.endsWith(":ready")){ //if (read.toLowerCase().startsWith("ready")){
+                //name = read.substring(6);
+                String[] line = read.split(":");
+                if (line[1].toLowerCase().equals("ready")) {
+                    name = line[0];
+                    for (Player player1 : players) {
+                        if (player1.name.equals(name)) {
+                            player = player1;
+                            break;
+                        }
                     }
-                }
-                if (player != null && !player.ready) {
-                    player.ready = true;
-                    readyPlayers++;
+                    if (player != null && !player.ready) {
+                        player.ready = true;
+                        readyPlayers++;
+                    }
                 }
             }
             if (readyPlayers > 0 && players.size() == readyPlayers) {
