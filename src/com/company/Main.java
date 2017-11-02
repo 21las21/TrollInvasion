@@ -2,6 +2,7 @@ package com.company;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
@@ -184,13 +185,20 @@ public class Main {
                         goCell.unit = selectedCell.unit - 1;
                         selectedCell.unit = 1;
                     } else {
-                        if (selectedCell.unit > goCell.unit) {
+                        double capture = new Random().nextDouble();
+                        if (selectedCell.unit > goCell.unit + 1) {
                             goCell.player = players.get(playerTurn);
                         }
-                        goCell.unit = Math.abs(selectedCell.unit - goCell.unit);
-                        if (goCell.unit == 0) {
-                            goCell.unit = 1;
-                        }
+                        goCell.unit = selectedCell.unit - goCell.unit;
+                        double chance;
+                        if (goCell.unit == 0)
+                            chance = 0.5;
+                        else if (goCell.unit == 1)
+                            chance = 0.75;
+                        else
+                            chance = 0.25;
+                        goCell.unit = 1;
+                        goCell.player = (capture >= chance ? players.get(playerTurn) : goCell.player);
                         selectedCell.unit = 1;
                     }
                     boolean enemyExist = false;
