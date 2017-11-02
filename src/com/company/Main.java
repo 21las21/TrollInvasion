@@ -87,8 +87,8 @@ public class Main {
             while (true) {
                 System.out.print(players.get(playerTurn).name);
                 System.out.println("'s turn");
-                int cordI;
-                int cordJ;
+                int cordI = 0;
+                int cordJ = 0;
                 Cell selectedCell;
                 boolean good = false;
                 for (int i = 0; i < mapI; i++) {
@@ -107,16 +107,25 @@ public class Main {
                     while (true) {
                         line = scanner.nextLine();
                         if (line.startsWith(players.get(playerTurn).name + ":")) {
-                            break;
+                            good = true;
+                            select = line.split(":")[1].split(" ");
+                            try {
+                                cordI = Integer.parseInt(select[0]);
+                                cordJ = Integer.parseInt(select[1]);
+                            } catch (NumberFormatException exc) {
+                                System.out.println("Can not be read");
+                                good = false;
+                            }
+                            if (good) {
+                                break;
+                            }
                         }
                     }
-                    select = line.substring(2).split(" ");
-                    cordI = Integer.parseInt(select[0]);
-                    cordJ = Integer.parseInt(select[1]);
                     selectedCell = cells[cordI][cordJ];
-                    if ((cordI + cordJ) % 2 != 0 || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
+                    if (selectedCell == null || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
                         System.out.println("Invalid choice!");
                     } else {
+                        System.out.println("Selected cell: " + cordI + " " + cordJ);
                         break;
                     }
                 }
@@ -134,14 +143,26 @@ public class Main {
                 while (true) {
                     String[] go;
                     String line;
+                    int goI = 0;
+                    int goJ = 0;
                     while (true) {
                         line = scanner.nextLine();
                         if (line.startsWith(players.get(playerTurn).name + ":")) {
-                            break;
+                            good = true;
+                            go = line.split(":")[1].split(" ");
+                            try {
+                                goI = Integer.parseInt(go[0]);
+                                goJ = Integer.parseInt(go[1]);
+                            } catch (NumberFormatException exc) {
+                                System.out.println("Can not be read");
+                                good = false;
+                            }
+                            if (good) {
+                                break;
+                            }
                         }
                     }
-                    go = line.substring(2).split(" ");
-                    goCell = cells[Integer.parseInt(go[0])][Integer.parseInt(go[1])];
+                    goCell = cells[goI][goJ];
                     if (!nearCells.contains(goCell)) {
                         System.out.println("Invalid choice!");
                     } else {
@@ -179,18 +200,32 @@ public class Main {
             }
             System.out.println("You have " + energy + " energy left");
             Cell upgradeCell;
+            boolean good = false;
             while (true) {
                 String[] upgrade;
                 String line;
+                int upI = 0;
+                int upJ = 0;
                 while (true) {
                     line = scanner.nextLine();
                     if (line.startsWith(players.get(playerTurn).name + ":")) {
-                        break;
+                        good = true;
+                        upgrade = line.split(":")[1].split(" ");
+                        try {
+                            upI = Integer.parseInt(upgrade[0]);
+                            upJ = Integer.parseInt(upgrade[1]);
+                        } catch (NumberFormatException exc) {
+                            System.out.println("Can not be read");
+                            good = false;
+                        }
+                        if (good) {
+                            break;
+                        }
                     }
                 }
-                upgrade = line.substring(2).split(" ");
-                int upI = Integer.parseInt(upgrade[0]);
-                int upJ = Integer.parseInt(upgrade[1]);
+                //upgrade = line.split(":")[1].split(" ");
+                //int upI = Integer.parseInt(upgrade[0]);
+                //int upJ = Integer.parseInt(upgrade[1]);
                 upgradeCell = cells[upI][upJ];
                 if (upgradeCell == null || upgradeCell.player != players.get(playerTurn)) {
                     System.out.println("Invalid choice!");
