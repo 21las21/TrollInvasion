@@ -3,6 +3,7 @@ package com.company;
 public class Player {
     String name;
     boolean ready;
+    char color;
 
     public Player(String name, boolean ready) {
         this.name = name;

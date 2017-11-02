@@ -28,8 +28,7 @@ public class Main {
                     players.add(player);
                 }
             }
-            else if (read.endsWith(":ready")){ //if (read.toLowerCase().startsWith("ready")){
-                //name = read.substring(6);
+            else if (read.toLowerCase().endsWith(":ready")){
                 String[] line = read.split(":");
                 if (line[1].toLowerCase().equals("ready")) {
                     name = line[0];
@@ -53,8 +52,9 @@ public class Main {
             read = scanner.nextLine();
         }
         System.out.println("Players:");
-        for (Player player : players) {
-            System.out.println(player.name);
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).color = (char)('A' + i);
+            System.out.println(players.get(i).name + " " + players.get(i).color);
         }
 
         System.out.println("Generating map");
@@ -79,7 +79,7 @@ public class Main {
         cells[5][3].unit = 3;
 
         //Map building
-        mapBuild(cells);
+        mapPrint(cells);
         //Game loop start
         int playerTurn = 0;
         while (true) {
@@ -183,7 +183,7 @@ public class Main {
                     }
                     selectedCell.unit = 1;
                 }
-                mapBuild(cells);
+                mapPrint(cells);
             }
             //First phase end
 
@@ -200,7 +200,7 @@ public class Main {
             }
             System.out.println("You have " + energy + " energy left");
             Cell upgradeCell;
-            boolean good = false;
+            boolean good;
             while (true) {
                 String[] upgrade;
                 String line;
@@ -233,7 +233,7 @@ public class Main {
                 else {
                     energy--;
                     upgradeCell.unit++;
-                    mapBuild(cells);
+                    mapPrint(cells);
                     System.out.println(energy + " energy left");
                 }
                 if (energy == 0) {
@@ -248,7 +248,7 @@ public class Main {
         }
     }
 
-    private static void mapBuild(Cell[][] cells) {
+    private static void mapPrint(Cell[][] cells) {
         for (Cell[] cells1 : cells) {
             for (Cell cell : cells1) {
                 if (cell == null) {
@@ -257,7 +257,7 @@ public class Main {
                     System.out.print("## ");
                 } else {
                     System.out.print(cell.unit);
-                    System.out.print(cell.player.name);
+                    System.out.print(cell.player.color);
                     System.out.print(" ");
                 }
             }
