@@ -48,6 +48,7 @@ public class Main {
             }
             read = scanner.nextLine();
         }
+        System.out.println("Players:");
         for (Player player : players) {
             System.out.println(player.name);
         }
@@ -58,9 +59,11 @@ public class Main {
             return;
         }
 
-        Cell[][] cells = new Cell[5][7];
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 7; j++) {
+        int mapI = 7;
+        int mapJ = 7;
+        Cell[][] cells = new Cell[mapI][mapJ];
+        for (int i = 0; i < mapI; i++) {
+            for (int j = 0; j < mapJ; j++) {
                 if ((i + j) % 2 == 0) {
                     cells[i][j] = new Cell();
                 }
@@ -68,8 +71,8 @@ public class Main {
         }
         cells[1][3].player = players.get(0);
         cells[1][3].unit = 2;
-        cells[3][3].player = players.get(1);
-        cells[3][3].unit = 3;
+        cells[5][3].player = players.get(1);
+        cells[5][3].unit = 3;
 
         //Map building
         mapBuild(cells);
@@ -84,8 +87,8 @@ public class Main {
                 int cordJ;
                 Cell selectedCell;
                 boolean good = false;
-                for (int i = 0; i < 5; i++) {
-                    for (int j = 0; j < 7; j++) {
+                for (int i = 0; i < mapI; i++) {
+                    for (int j = 0; j < mapJ; j++) {
                         if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
                             good = true;
                         }
@@ -114,8 +117,8 @@ public class Main {
                     }
                 }
                 ArrayList<Cell> nearCells = new ArrayList<>();
-                for (int i = 0; i < 5; i++) {
-                    for (int j = 0; j < 7; j++) {
+                for (int i = 0; i < mapI; i++) {
+                    for (int j = 0; j < mapJ; j++) {
                         int dI = Math.abs(cordI - i);
                         int dJ = Math.abs(cordJ - j);
                         if ((dI == 2 && dJ == 0) || (dI == 1 && dJ == 1)) {
@@ -164,8 +167,8 @@ public class Main {
 
             //Second phase start
             int energy = 0;
-            for (int i = 0; i < 5; i++) {
-                for (int j = 0; j < 7; j++) {
+            for (int i = 0; i < mapI; i++) {
+                for (int j = 0; j < mapJ; j++) {
                     if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn)) {
                         energy++;
                     }
@@ -186,7 +189,7 @@ public class Main {
                 int upI = Integer.parseInt(upgrade[0]);
                 int upJ = Integer.parseInt(upgrade[1]);
                 upgradeCell = cells[upI][upJ];
-                if ((upI + upJ) % 2 != 0 || upgradeCell.player != players.get(playerTurn)) {
+                if (upgrade != null || upgradeCell.player != players.get(playerTurn)) {
                     System.out.println("Invalid choice!");
                 }
                 else {
