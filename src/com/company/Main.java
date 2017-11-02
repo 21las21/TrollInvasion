@@ -14,7 +14,7 @@ public class Main {
         String read = scanner.nextLine();
         while (!Objects.equals(read, "Starting game")) {
             Player player = null;
-            String name = null;
+            String name;
             if (read.startsWith("+")) {
                 name = read.substring(1);
                 for (Player player1 : players) {
@@ -98,7 +98,7 @@ public class Main {
                     break;
                 }
                 while (true) {
-                    String[] select = null;
+                    String[] select;
                     String line;
                     while (true) {
                         line = scanner.nextLine();
@@ -163,7 +163,6 @@ public class Main {
             //First phase end
 
             System.out.println("Upgrade phase");
-            //mapBuild(cells);
 
             //Second phase start
             int energy = 0;
@@ -189,7 +188,7 @@ public class Main {
                 int upI = Integer.parseInt(upgrade[0]);
                 int upJ = Integer.parseInt(upgrade[1]);
                 upgradeCell = cells[upI][upJ];
-                if (upgrade != null || upgradeCell.player != players.get(playerTurn)) {
+                if (upgradeCell == null || upgradeCell.player != players.get(playerTurn)) {
                     System.out.println("Invalid choice!");
                 }
                 else {
@@ -210,7 +209,7 @@ public class Main {
         }
     }
 
-    public static void mapBuild(Cell[][] cells) {
+    private static void mapBuild(Cell[][] cells) {
         for (Cell[] cells1 : cells) {
             for (Cell cell : cells1) {
                 if (cell == null) {
