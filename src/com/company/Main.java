@@ -26,6 +26,9 @@ public class Main {
                 if (player == null) {
                     player = new Player(name, false);
                     players.add(player);
+                    for (Player player1 : players) {
+                        System.out.println(player1.name + " " + (player1.ready ? "ready" : "not ready"));
+                    }
                 }
             }
             else if (read.toLowerCase().endsWith(":ready")){
@@ -89,7 +92,7 @@ public class Main {
                 System.out.println("'s turn");
                 int cordI = 0;
                 int cordJ = 0;
-                Cell selectedCell;
+                Cell selectedCell = null;
                 boolean good = false;
                 for (int i = 0; i < mapI; i++) {
                     for (int j = 0; j < mapJ; j++) {
@@ -112,8 +115,9 @@ public class Main {
                             try {
                                 cordI = Integer.parseInt(select[0]);
                                 cordJ = Integer.parseInt(select[1]);
-                            } catch (NumberFormatException exc) {
-                                System.out.println("Can not be read");
+                                selectedCell = cells[cordI][cordJ];
+                            } catch (Exception exc) {
+                                System.out.println("Invalid input!");
                                 good = false;
                             }
                             if (good) {
@@ -121,7 +125,6 @@ public class Main {
                             }
                         }
                     }
-                    selectedCell = cells[cordI][cordJ];
                     if (selectedCell == null || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
                         System.out.println("Invalid choice!");
                     } else {
@@ -139,7 +142,7 @@ public class Main {
                         }
                     }
                 }
-                Cell goCell;
+                Cell goCell = null;
                 while (true) {
                     String[] go;
                     String line;
@@ -153,8 +156,9 @@ public class Main {
                             try {
                                 goI = Integer.parseInt(go[0]);
                                 goJ = Integer.parseInt(go[1]);
-                            } catch (NumberFormatException exc) {
-                                System.out.println("Can not be read");
+                                goCell = cells[goI][goJ];
+                            } catch (Exception exc) {
+                                System.out.println("Invalid input!");
                                 good = false;
                             }
                             if (good) {
@@ -162,7 +166,6 @@ public class Main {
                             }
                         }
                     }
-                    goCell = cells[goI][goJ];
                     if (!nearCells.contains(goCell)) {
                         System.out.println("Invalid choice!");
                     } else {
@@ -199,13 +202,13 @@ public class Main {
                 }
             }
             System.out.println("You have " + energy + " energy left");
-            Cell upgradeCell;
+            Cell upgradeCell = null;
             boolean good;
             while (true) {
                 String[] upgrade;
                 String line;
-                int upI = 0;
-                int upJ = 0;
+                int upI;
+                int upJ;
                 while (true) {
                     line = scanner.nextLine();
                     if (line.startsWith(players.get(playerTurn).name + ":")) {
@@ -214,8 +217,9 @@ public class Main {
                         try {
                             upI = Integer.parseInt(upgrade[0]);
                             upJ = Integer.parseInt(upgrade[1]);
-                        } catch (NumberFormatException exc) {
-                            System.out.println("Can not be read");
+                            upgradeCell = cells[upI][upJ];
+                        } catch (Exception exc) {
+                            System.out.println("Invalid input!");
                             good = false;
                         }
                         if (good) {
@@ -223,10 +227,6 @@ public class Main {
                         }
                     }
                 }
-                //upgrade = line.split(":")[1].split(" ");
-                //int upI = Integer.parseInt(upgrade[0]);
-                //int upJ = Integer.parseInt(upgrade[1]);
-                upgradeCell = cells[upI][upJ];
                 if (upgradeCell == null || upgradeCell.player != players.get(playerTurn)) {
                     System.out.println("Invalid choice!");
                 }
