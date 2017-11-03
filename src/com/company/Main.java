@@ -106,8 +106,8 @@ public class Main {
 //                    System.out.print(players.get(playerTurn).name);
 //                    System.out.println("'s turn");
                     ArrayList<Cell> nearCells;
-                    int cordI = 0;
-                    int cordJ = 0;
+//                    int cordI = 0;
+//                    int cordJ = 0;
                     Cell selectedCell;
                     boolean good = false;
                     boolean canTurn = false;
@@ -153,7 +153,7 @@ public class Main {
                         if (selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
                             System.err.println("Invalid choice!");
                         } else {
-                            print("selectCell", cordI, cordJ);
+                            print("selectCell", selectedCell.cellI, selectedCell.cellJ);
 //                            System.out.println("Selected cell: " + cordI + " " + cordJ);
                             break;
                         }
