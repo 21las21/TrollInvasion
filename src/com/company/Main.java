@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void print(String command, Object... args) {
+    private static void print(String command, Object... args) {
         StringBuilder line = new StringBuilder(command);
         for (Object arg : args) {
             line.append(' ').append(arg.toString());
@@ -59,7 +59,7 @@ public class Main {
                 }
             }
             if (readyPlayers > 0 && players.size() == readyPlayers) {
-                read = "Starting game";
+//                read = "Starting game";
                 print("gameStart");
 //                System.out.println(read);
                 break;
@@ -105,19 +105,31 @@ public class Main {
                     print("turn", players.get(playerTurn).name);
 //                    System.out.print(players.get(playerTurn).name);
 //                    System.out.println("'s turn");
+                    ArrayList<Cell> nearCells;
                     int cordI = 0;
                     int cordJ = 0;
                     Cell selectedCell = null;
                     boolean good = false;
-                    for (int i = 0; i < mapI; i++) {
-                        for (int j = 0; j < mapJ; j++) {
-                            if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
-                                good = true;
+                    boolean canTurn = false;
+                    check:
+                    {
+                        for (int i = 0; i < mapI; i++) {
+                            for (int j = 0; j < mapJ; j++) {
+                                if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
+                                    good = true;
+                                    nearCells = cells[i][j].nearCells(cells, mapI, mapJ, i, j);
+                                    for (Cell cell : nearCells) {
+                                        if (cell != null && cell.player != players.get(playerTurn)) {
+                                            canTurn = true;
+                                            break check;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                    if (!good) {
-                        break;
+                    if (!good || !canTurn) {
+                        break first;
                     }
                     while (true) {
                         String[] select;
@@ -152,16 +164,7 @@ public class Main {
                             break;
                         }
                     }
-                    ArrayList<Cell> nearCells = new ArrayList<>();
-                    for (int i = 0; i < mapI; i++) {
-                        for (int j = 0; j < mapJ; j++) {
-                            int dI = Math.abs(cordI - i);
-                            int dJ = Math.abs(cordJ - j);
-                            if ((dI == 0 && dJ == 2) || (dI == 1 && dJ == 1)) {
-                                nearCells.add(cells[i][j]);
-                            }
-                        }
-                    }
+                    nearCells = selectedCell.nearCells(cells, mapI, mapJ, cordI, cordJ);
                     Cell goCell = null;
                     while (true) {
                         String[] go;
@@ -172,7 +175,11 @@ public class Main {
                             line = scanner.nextLine();
                             if (line.startsWith(players.get(playerTurn).name + ":")) {
                                 good = true;
-                                go = line.split(":")[1].split(" ");
+                                line = line.split(":")[1];
+                                if (line.toLowerCase().equals("next phase")) {
+                                    break first;
+                                }
+                                go = line.split(" ");
                                 try {
                                     goI = Integer.parseInt(go[0]);
                                     goJ = Integer.parseInt(go[1]);
@@ -197,20 +204,22 @@ public class Main {
                         goCell.unit = selectedCell.unit - 1;
                         selectedCell.unit = 1;
                     } else {
-                        double capture = new Random().nextDouble();
                         if (selectedCell.unit > goCell.unit + 1) {
                             goCell.player = players.get(playerTurn);
                         }
+                        double capture = new Random().nextDouble();
                         goCell.unit = selectedCell.unit - goCell.unit;
                         double chance;
                         if (goCell.unit == 0)
                             chance = 0.5;
                         else if (goCell.unit == 1)
+                            chance = 0.25;
+                        else if (goCell.unit == -1)
                             chance = 0.75;
                         else
-                            chance = 0.25;
+                            chance = 1;
                         goCell.unit = 1;
-                        goCell.player = (capture >= chance ? players.get(playerTurn) : goCell.player);
+                        goCell.player = (capture > chance ? players.get(playerTurn) : goCell.player);
                         selectedCell.unit = 1;
                     }
                     boolean enemyExist = false;
