@@ -205,8 +205,9 @@ public class Main {
                         selectedCell.unit = 1;
                     } else {
                         goCell.unit = selectedCell.unit - goCell.unit;
-                        if (goCell.unit > 1) {
-                            goCell.player = players.get(playerTurn);
+                        if (Math.abs(goCell.unit) > 1) {
+                            goCell.player = (goCell.unit > 1 ? players.get(playerTurn) : goCell.player);
+                            goCell.unit = Math.abs(goCell.unit);
                         }
                         else {
                             double capture = new Random().nextDouble();
