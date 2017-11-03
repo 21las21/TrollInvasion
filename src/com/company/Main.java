@@ -316,7 +316,6 @@ public class Main {
     }
     
     private static Answer getCellFromMessage(String message, Player player, Cell[][] cells) {
-        boolean good = true;
         String[] messages;
         Cell cell = null;
         int numberI;
@@ -335,12 +334,16 @@ public class Main {
                 numberI = Integer.parseInt(messages[0]);
                 numberJ = Integer.parseInt(messages[1]);
                 cell = cells[numberI][numberJ];
-            } catch (Exception exc) {
-                good = false;
+            } catch (Exception ignored) {
             }
         }
         else
             return null;
-        return new Answer(cell, good);
+        if (cell != null) {
+            return new Answer(cell, true);
+        }
+        else {
+            return new Answer(null, false);
+        }
     }
 }
