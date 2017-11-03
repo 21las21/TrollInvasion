@@ -7,9 +7,17 @@ import java.util.Scanner;
 
 public class Main {
 
+    public static void print(String command, Object... args) {
+        StringBuilder line = new StringBuilder(command);
+        for (Object arg : args) {
+            line.append(' ').append(arg.toString());
+        }
+        System.out.println(line);
+    }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Starting server");
+//        System.out.println("Starting server");
         ArrayList<Player> players = new ArrayList<>();
         int readyPlayers = 0;
         String read = scanner.nextLine();
@@ -28,11 +36,11 @@ public class Main {
                     player = new Player(name, false);
                     players.add(player);
                     for (Player player1 : players) {
-                        System.out.println(player1.name + " " + (player1.ready ? "ready" : "not ready"));
+                        print("readyStatus", player1.name, player1.ready);
+//                        System.out.println(player1.name + " " + (player1.ready ? "ready" : "not ready"));
                     }
                 }
-            }
-            else if (read.toLowerCase().endsWith(":ready")){
+            } else if (read.toLowerCase().endsWith(":ready")) {
                 String[] line = read.split(":");
                 if (line[1].toLowerCase().equals("ready")) {
                     name = line[0];
@@ -45,27 +53,29 @@ public class Main {
                     if (player != null && !player.ready) {
                         player.ready = true;
                         readyPlayers++;
-                        System.out.println(player.name + " ready");
+                        print("readyStatus", player.name, true);
+//                        System.out.println(player.name + " ready");
                     }
                 }
             }
             if (readyPlayers > 0 && players.size() == readyPlayers) {
                 read = "Starting game";
-                System.out.println(read);
+                print("gameStart");
+//                System.out.println(read);
                 break;
             }
             read = scanner.nextLine();
         }
-        System.out.println("Players:");
+//        System.out.println("Players:");
         for (int i = 0; i < players.size(); i++) {
-            players.get(i).color = (char)('A' + i);
-            System.out.println(players.get(i).name + " " + players.get(i).color);
+            players.get(i).color = (char) ('A' + i);
+            print("playerColor", players.get(i).name, players.get(i).color);
+//            System.out.println(players.get(i).name + " " + players.get(i).color);
         }
 
-        System.out.println("Generating map");
+//        System.out.println("Generating map");
         if (readyPlayers != 2) {
-            System.out.println("Can not generate map");
-            return;
+            throw new RuntimeException("Can not generate map");
         }
 
         int mapI = 7;
@@ -92,8 +102,9 @@ public class Main {
             first:
             {
                 while (true) {
-                    System.out.print(players.get(playerTurn).name);
-                    System.out.println("'s turn");
+                    print("turn", players.get(playerTurn).name);
+//                    System.out.print(players.get(playerTurn).name);
+//                    System.out.println("'s turn");
                     int cordI = 0;
                     int cordJ = 0;
                     Cell selectedCell = null;
@@ -125,7 +136,7 @@ public class Main {
                                     cordJ = Integer.parseInt(select[1]);
                                     selectedCell = cells[cordI][cordJ];
                                 } catch (Exception exc) {
-                                    System.out.println("Invalid input!");
+                                    System.err.println("Invalid input!");
                                     good = false;
                                 }
                                 if (good) {
@@ -134,9 +145,10 @@ public class Main {
                             }
                         }
                         if (selectedCell == null || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
-                            System.out.println("Invalid choice!");
+                            System.err.println("Invalid choice!");
                         } else {
-                            System.out.println("Selected cell: " + cordI + " " + cordJ);
+                            print("selectCell", cordI, cordJ);
+//                            System.out.println("Selected cell: " + cordI + " " + cordJ);
                             break;
                         }
                     }
@@ -166,7 +178,7 @@ public class Main {
                                     goJ = Integer.parseInt(go[1]);
                                     goCell = cells[goI][goJ];
                                 } catch (Exception exc) {
-                                    System.out.println("Invalid input!");
+                                    System.err.println("Invalid input!");
                                     good = false;
                                 }
                                 if (good) {
@@ -175,7 +187,7 @@ public class Main {
                             }
                         }
                         if (!nearCells.contains(goCell) || (goCell.player != null && goCell.player.equals(players.get(playerTurn)))) {
-                            System.out.println("Invalid choice!");
+                            System.err.println("Invalid choice!");
                         } else {
                             break;
                         }
@@ -212,14 +224,16 @@ public class Main {
                     }
                     mapPrint(cells);
                     if (!enemyExist) {
-                        System.out.println(players.get(playerTurn).name + " " + "won!");
+                        print("gameFinish", players.get(playerTurn).name);
+//                        System.out.println(players.get(playerTurn).name + " " + "won!");
                         return;
                     }
                 }
             }
             //First phase end
 
-            System.out.println("Upgrade phase");
+            print("upgradePhase");
+//            System.out.println("Upgrade phase");
 
             //Second phase start
             int energy = 0;
@@ -230,7 +244,8 @@ public class Main {
                     }
                 }
             }
-            System.out.println("You have " + energy + " energy left");
+            print("energyLeft", energy);
+//            System.out.println("You have " + energy + " energy left");
             Cell upgradeCell = null;
             boolean good;
             second:
@@ -254,7 +269,7 @@ public class Main {
                                 upJ = Integer.parseInt(upgrade[1]);
                                 upgradeCell = cells[upI][upJ];
                             } catch (Exception exc) {
-                                System.out.println("Invalid input!");
+                                System.err.println("Invalid input!");
                                 good = false;
                             }
                             if (good) {
@@ -263,12 +278,13 @@ public class Main {
                         }
                     }
                     if (upgradeCell == null || upgradeCell.player != players.get(playerTurn) || (upgradeCell.unit + 1) > upgradeCell.maxUnit) {
-                        System.out.println("Invalid choice!");
+                        System.err.println("Invalid choice!");
                     } else {
                         energy--;
                         upgradeCell.unit++;
                         mapPrint(cells);
-                        System.out.println(energy + " energy left");
+                        print("energyLeft", energy);
+//                        System.out.println(energy + " energy left");
                     }
                     if (energy == 0) {
                         break;
@@ -284,19 +300,21 @@ public class Main {
     }
 
     private static void mapPrint(Cell[][] cells) {
-        for (Cell[] cells1 : cells) {
+        for (int i = 0; i < cells.length; i++) {
+            Cell[] cells1 = cells[i];
+            StringBuilder line = new StringBuilder();
             for (Cell cell : cells1) {
                 if (cell == null) {
-                    System.out.print("__ ");
+                    line.append("__|");
                 } else if (cell.player == null) {
-                    System.out.print("## ");
+                    line.append("##|");
                 } else {
-                    System.out.print(cell.unit);
-                    System.out.print(cell.player.color);
-                    System.out.print(" ");
+                    line.append(cell.unit);
+                    line.append(cell.player.color);
+                    line.append("|");
                 }
             }
-            System.out.println();
+            print("mapLine", i, line.substring(0, line.length() - 1));
         }
     }
 }
