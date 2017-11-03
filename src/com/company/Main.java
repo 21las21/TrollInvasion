@@ -204,22 +204,24 @@ public class Main {
                         goCell.unit = selectedCell.unit - 1;
                         selectedCell.unit = 1;
                     } else {
-                        if (selectedCell.unit > goCell.unit + 1) {
+                        goCell.unit = selectedCell.unit - goCell.unit;
+                        if (goCell.unit > 1) {
                             goCell.player = players.get(playerTurn);
                         }
-                        double capture = new Random().nextDouble();
-                        goCell.unit = selectedCell.unit - goCell.unit;
-                        double chance;
-                        if (goCell.unit == 0)
-                            chance = 0.5;
-                        else if (goCell.unit == 1)
-                            chance = 0.25;
-                        else if (goCell.unit == -1)
-                            chance = 0.75;
-                        else
-                            chance = 1;
-                        goCell.unit = 1;
-                        goCell.player = (capture > chance ? players.get(playerTurn) : goCell.player);
+                        else {
+                            double capture = new Random().nextDouble();
+                            double chance;
+                            if (goCell.unit == 0)
+                                chance = 0.5;
+                            else if (goCell.unit == 1)
+                                chance = 0.25;
+                            else if (goCell.unit == -1)
+                                chance = 0.75;
+                            else
+                                chance = 1;
+                            goCell.unit = 1;
+                            goCell.player = (capture > chance ? players.get(playerTurn) : goCell.player);
+                        }
                         selectedCell.unit = 1;
                     }
                     boolean enemyExist = false;
