@@ -6,7 +6,15 @@ public class Cell {
     Player player;
     int unit;
     int maxUnit = 8;
-    ArrayList<Cell> nearCells(Cell[][] cells, int mapI, int mapJ, int cellI, int cellJ) {
+    int cellI;
+    int cellJ;
+
+    public Cell(int iIn, int jIn) {
+        cellI = iIn;
+        cellJ = jIn;
+    }
+
+    ArrayList<Cell> nearCells(Cell[][] cells, int mapI, int mapJ) {
         ArrayList<Cell> nearCells = new ArrayList<>();
         for (int i = 0; i < mapI; i++) {
             for (int j = 0; j < mapJ; j++) {
