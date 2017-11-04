@@ -1,6 +1,7 @@
 package com.company;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -18,9 +19,11 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 //        System.out.println("Starting server");
         ArrayList<Player> players = new ArrayList<>();
+        ArrayList<Character> colors = new ArrayList<>();
         ArrayList<Cell> outputs = new ArrayList<>();
         Cell output = null;
         int readyPlayers = 0;
+        int colorPlayers = 0;
         String read = scanner.nextLine();
         while (!Objects.equals(read, "Starting game")) {
             Player player = null;
@@ -59,6 +62,28 @@ public class Main {
                     }
                 }
             }
+            else {
+                String[] line = read.split(":");
+                if (line.length == 2 && line[1].toLowerCase().startsWith("selectcolor")) {
+                    name = line[0];
+                    for (Player player1 : players) {
+                        if (player1.name.equals(name)) {
+                            player = player1;
+                            break;
+                        }
+                    }
+                    line = line[1].split(" ");
+                    if (line.length == 2) {
+                        char color = line[1].charAt(0);
+                        if (!colors.contains(color)) {
+                            colorPlayers++;
+                            colors.add(color);
+                            player.color = color;
+                            print("playerColor", player.name, player.color);
+                        }
+                    }
+                }
+            }
             if (readyPlayers > 0 && players.size() == readyPlayers) {
 //                read = "Starting game";
                 print("gameStart");
@@ -67,26 +92,39 @@ public class Main {
             }
             read = scanner.nextLine();
         }
+        Bot bot;
+        BadBot badBot = null;
+        if (readyPlayers == 1) {
+//            bot = new Bot("Bot", true);
+            badBot = new BadBot("BadBot", true);
+//            players.add(bot);
+            players.add(badBot);
+//            players.get(players.size() - 1).color = (char) ('A' + players.size() - 1);
+//            print("playerColor", "Bot", players.get(players.size() - 1).color);
+        }
+        Iterator<Player> iterator = players.iterator();
 //        System.out.println("Players:");
-        for (int i = 0; i < players.size(); i++) {
-            players.get(i).color = (char) ('A' + i);
-            print("playerColor", players.get(i).name, players.get(i).color);
+        for (int i = 0; colorPlayers < players.size();) {
+            if (!colors.contains((char)('A' + i)) && iterator.hasNext()) {
+                Player player = iterator.next();
+                if (player.color == (char)0) {
+                    player.color = (char) ('A' + i);
+                    colorPlayers++;
+                    colors.add(player.color);
+                }
+            }
+            else {
+                i++;
+            }
 //            System.out.println(players.get(i).name + " " + players.get(i).color);
+        }
+        for (int i = 0; i < players.size(); i++) {
+            print("playerColor", players.get(i).name, players.get(i).color);
         }
 
 //        System.out.println("Generating map");
         if (readyPlayers > 2) {
             throw new RuntimeException("Can not generate map");
-        }
-//        Bot bot;
-        BadBot badBot = null;
-        if (readyPlayers == 1) {
-//            bot = new Bot("Bot", true);
-            badBot = new BadBot("Bot", true);
-//            players.add(bot);
-            players.add(badBot);
-            players.get(players.size() - 1).color = (char) ('A' + players.size() - 1);
-            print("playerColor", "Bot", players.get(players.size() - 1).color);
         }
 
         int mapI = 7;
