@@ -6,8 +6,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class Main {
-
-    private static void print(String command, Object... args) {
+    static void print(String command, Object... args) {
         StringBuilder line = new StringBuilder(command);
         for (Object arg : args) {
             line.append(' ').append(arg.toString());
@@ -139,24 +138,29 @@ public class Main {
             throw new RuntimeException("Can not generate map");
         }
 
-        int mapI = 7;
-        int mapJ = 7;
-        Cell[][] cells = new Cell[mapI][mapJ];
-        for (int i = 0; i < mapI; i++) {
-            for (int j = 0; j < mapJ; j++) {
-                if ((i + j) % 2 == 0) {
-                    cells[i][j] = new Cell(i, j);
-                }
-            }
-        }
-        cells[1][3].player = players.get(0);
-        cells[1][3].unit = 2;
-        cells[5][3].player = players.get(1);
-        cells[5][3].unit = 3;
-
-        //Map building
-        mapPrint(cells);
-        //Game loop start
+        Map map = new Map();
+        Cell[][] cells = map.map1Cells(players);
+        int mapI = cells.length;
+        int mapJ = cells[0].length;
+        map.mapPrint(cells);
+//        int mapI = 7;
+//        int mapJ = 7;
+//        Cell[][] cells = new Cell[mapI][mapJ];
+//        for (int i = 0; i < mapI; i++) {
+//            for (int j = 0; j < mapJ; j++) {
+//                if ((i + j) % 2 == 0) {
+//                    cells[i][j] = new Cell(i, j);
+//                }
+//            }
+//        }
+//        cells[1][3].player = players.get(0);
+//        cells[1][3].unit = 2;
+//        cells[5][3].player = players.get(1);
+//        cells[5][3].unit = 3;
+//
+//        Map building
+//        map.mapPrint(cells);
+//        Game loop start
         int playerTurn = 0;
         while (true) {
             //First phase start
@@ -169,7 +173,7 @@ public class Main {
                     ArrayList<Cell> nearCells;
 //                    int cordI = 0;
 //                    int cordJ = 0;
-                    Cell selectedCell;
+                    Cell selectedCell = null;
                     boolean good = false;
                     boolean canTurn = false;
                     check:
@@ -200,6 +204,7 @@ public class Main {
                     int index = 0;
                     step:
                     {
+                        boolean reselect = false;
                         while (true) {
                             while (true) {
 //                        String[] select;
@@ -210,6 +215,8 @@ public class Main {
                                     if (players.get(playerTurn) instanceof BadBot) {
                                         selectedCell = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, index);
                                         index++;
+                                        break;
+                                    } else if (reselect) {
                                         break;
                                     } else {
                                         line = scanner.nextLine();
@@ -230,6 +237,7 @@ public class Main {
                                         }
                                     }
                                 }
+                                reselect = false;
                                 canTurn = false;
                                 nearCells = selectedCell.nearCells(cells);
                                 for (Cell cell : nearCells) {
@@ -282,7 +290,11 @@ public class Main {
                                             }
                                         }
                                     }
-                                    if (!nearCells.contains(goCell) || (goCell.player != null && goCell.player.equals(players.get(playerTurn)))) {
+                                    if (goCell.player != null && goCell.player.equals(players.get(playerTurn))) {
+                                        selectedCell = goCell;
+                                        reselect = true;
+                                        break goSelect;
+                                    } else if (!nearCells.contains(goCell)) {
                                         if (!(players.get(playerTurn) instanceof BadBot))
                                             System.err.println("Invalid choice!");
                                     } else {
@@ -334,7 +346,7 @@ public class Main {
                             }
                         }
                     }
-                    mapPrint(cells);
+                    map.mapPrint(cells);
                     if (!enemyExist) {
                         print("gameFinish", players.get(playerTurn).name);
 //                        System.out.println(players.get(playerTurn).name + " " + "won!");
@@ -401,7 +413,7 @@ public class Main {
                     } else {
                         energy--;
                         upgradeCell.unit++;
-                        mapPrint(cells);
+                        map.mapPrint(cells);
                         print("energyLeft", energy);
 //                        System.out.println(energy + " energy left");
                     }
@@ -415,25 +427,6 @@ public class Main {
             if (playerTurn >= players.size()) {
                 playerTurn = 0;
             }
-        }
-    }
-
-    private static void mapPrint(Cell[][] cells) {
-        for (int i = 0; i < cells.length; i++) {
-            Cell[] cells1 = cells[i];
-            StringBuilder line = new StringBuilder();
-            for (Cell cell : cells1) {
-                if (cell == null) {
-                    line.append("__|");
-                } else if (cell.player == null) {
-                    line.append("##|");
-                } else {
-                    line.append(cell.unit);
-                    line.append(cell.player.color);
-                    line.append("|");
-                }
-            }
-            print("mapLine", i, line.substring(0, line.length() - 1));
         }
     }
     
@@ -450,9 +443,10 @@ public class Main {
             message = messages[1];
             if (message.toLowerCase().equals("next phase")) {
                 return new Answer(null, true);
-            } else if (message.toLowerCase().equals("reselect")) {
-                return new Answer(new Cell(-1, -1), false);
             }
+//            else if (message.toLowerCase().equals("reselect")) {
+//                return new Answer(new Cell(-1, -1), false);
+//            }
             messages = message.split(" ");
             try {
                 numberI = Integer.parseInt(messages[0]);
