@@ -140,6 +140,7 @@ public class Main {
 
         Map map = new Map();
         Cell[][] cells = map.map1Cells(players);
+        Cell selectedCell = null;
         int mapI = cells.length;
         int mapJ = cells[0].length;
         map.mapPrint(cells);
@@ -166,6 +167,7 @@ public class Main {
             //First phase start
             first:
             {
+                boolean reselect = false;
                 while (true) {
                     print("turn", players.get(playerTurn).name);
 //                    System.out.print(players.get(playerTurn).name);
@@ -173,7 +175,9 @@ public class Main {
                     ArrayList<Cell> nearCells;
 //                    int cordI = 0;
 //                    int cordJ = 0;
-                    Cell selectedCell = null;
+                    if (!reselect) {
+                        selectedCell = null;
+                    }
                     boolean good = false;
                     boolean canTurn = false;
                     check:
@@ -200,11 +204,10 @@ public class Main {
 //                    if (players.get(playerTurn) instanceof Bot) {
 //                        outputs = ((Bot)players.get(playerTurn)).turn(cells, players, playerTurn);
 //                    }
-                    Cell goCell = null;
+                    Cell goCell;
                     int index = 0;
                     step:
                     {
-                        boolean reselect = false;
                         while (true) {
                             while (true) {
 //                        String[] select;
@@ -352,6 +355,8 @@ public class Main {
 //                        System.out.println(players.get(playerTurn).name + " " + "won!");
                         return;
                     }
+                    selectedCell = goCell;
+                    reselect = true;
                 }
             }
             //First phase end
