@@ -20,8 +20,8 @@ public class Main {
 //        System.out.println("Starting server");
         ArrayList<Player> players = new ArrayList<>();
         ArrayList<Character> colors = new ArrayList<>();
-        ArrayList<Cell> outputs = new ArrayList<>();
-        Cell output = null;
+//        ArrayList<Cell> outputs = new ArrayList<>();
+//        Cell output = null;
         int readyPlayers = 0;
         int colorPlayers = 0;
         String read = scanner.nextLine();
@@ -44,6 +44,19 @@ public class Main {
 //                        System.out.println(player1.name + " " + (player1.ready ? "ready" : "not ready"));
                     }
                 }
+            }
+            else if (read.startsWith("-")) {
+                player = null;
+                name = read.substring(1);
+                for (Player player1 : players) {
+                    if (player1.name.equals(name)) {
+                        player = player1;
+                        break;
+                    }
+                }
+                if (player != null) {
+                    players.remove(player);
+                }
             } else if (read.toLowerCase().endsWith(":ready")) {
                 String[] line = read.split(":");
                 if (line[1].toLowerCase().equals("ready")) {
@@ -61,8 +74,7 @@ public class Main {
 //                        System.out.println(player.name + " ready");
                     }
                 }
-            }
-            else {
+            } else {
                 String[] line = read.split(":");
                 if (line.length == 2 && line[1].toLowerCase().startsWith("selectcolor")) {
                     name = line[0];
@@ -93,12 +105,12 @@ public class Main {
             read = scanner.nextLine();
         }
         Bot bot;
-        BadBot badBot = null;
+        BadBot badBot = new BadBot("BadBot", true);
         if (readyPlayers == 1) {
-//            bot = new Bot("Bot", true);
-            badBot = new BadBot("BadBot", true);
-//            players.add(bot);
             players.add(0, badBot);
+//            bot = new Bot("Bot", true);
+//            badBot = new BadBot("BadBot", true);
+//            players.add(bot);
 //            players.get(players.size() - 1).color = (char) ('A' + players.size() - 1);
 //            print("playerColor", "Bot", players.get(players.size() - 1).color);
         }
@@ -201,7 +213,7 @@ public class Main {
                                         break;
                                     } else {
                                         line = scanner.nextLine();
-                                        Answer answer = getCellFromMessage(line, players.get(playerTurn), cells);
+                                        Answer answer = getCellFromMessage(line, players, players.get(playerTurn), cells);
                                         if (answer != null) {
                                             if (answer.cell == null) {
                                                 if (answer.good)
@@ -210,8 +222,10 @@ public class Main {
                                                 else
                                                     System.err.println("Invalid input!");
                                             } else {
-                                                selectedCell = answer.cell;
-                                                break;
+                                                if (answer.good) {
+                                                    selectedCell = answer.cell;
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
@@ -245,12 +259,12 @@ public class Main {
 //                            if (players.get(playerTurn) instanceof Bot)
 //                                line = String.valueOf(outputs.get(1).cellI + outputs.get(1).cellJ);
                                         if (players.get(playerTurn) instanceof BadBot) {
-                                            goCell = ((BadBot) players.get(playerTurn)).go(cells, players, playerTurn, index);
+                                            goCell = ((BadBot) players.get(playerTurn)).go(cells, players, playerTurn, index, selectedCell);
                                             index++;
                                             break;
                                         } else {
                                             line = scanner.nextLine();
-                                            Answer answer = getCellFromMessage(line, players.get(playerTurn), cells);
+                                            Answer answer = getCellFromMessage(line, players, players.get(playerTurn), cells);
                                             if (answer != null) {
                                                 if (answer.cell == null) {
                                                     if (answer.good)
@@ -366,7 +380,7 @@ public class Main {
                         }
                         else {
                             line = scanner.nextLine();
-                            Answer answer = getCellFromMessage(line, players.get(playerTurn), cells);
+                            Answer answer = getCellFromMessage(line, players, players.get(playerTurn), cells);
                             if (answer != null) {
                                 if (answer.cell == null) {
                                     if (answer.good)
@@ -423,7 +437,7 @@ public class Main {
         }
     }
     
-    private static Answer getCellFromMessage(String message, Player player, Cell[][] cells) {
+    private static Answer getCellFromMessage(String message,ArrayList<Player> players, Player player, Cell[][] cells) {
         String[] messages;
         Cell cell = null;
         int numberI;
@@ -436,8 +450,7 @@ public class Main {
             message = messages[1];
             if (message.toLowerCase().equals("next phase")) {
                 return new Answer(null, true);
-            }
-            else if (message.toLowerCase().equals("reselect")) {
+            } else if (message.toLowerCase().equals("reselect")) {
                 return new Answer(new Cell(-1, -1), false);
             }
             messages = message.split(" ");
@@ -447,8 +460,29 @@ public class Main {
                 cell = cells[numberI][numberJ];
             } catch (Exception ignored) {
             }
-        }
-        else
+        } else if (message.startsWith("-")) {
+            String name = message.substring(1);
+            int index = 0;
+            player = null;
+            for (Player player1 : players) {
+                if (player1.name.equals(name)) {
+                    player = player1;
+                    break;
+                }
+                index++;
+            }
+            if (player != null) {
+                BadBot badBot = new BadBot("Bot", true);
+                badBot.color = player.color;
+                players.set(index, badBot);
+                for (Cell[] cellRaw : cells)
+                    for (Cell cellCheck : cellRaw)
+                        if (cellCheck != null && cellCheck.player != null && cellCheck.player.equals(player)) {
+                            cellCheck.player = badBot;
+                        }
+                return new Answer(new Cell(-1, -1), false);
+            }
+        } else
             return null;
         if (cell != null) {
             return new Answer(cell, true);

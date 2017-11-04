@@ -15,8 +15,8 @@ public class BadBot extends Player {
         return select;
     }
 
-    Cell go(Cell[][] cells, ArrayList<Player> players, int playerTurn, int index) {
-        ArrayList<Cell> choices = allNotPlayerCells(cells, players, playerTurn);
+    Cell go(Cell[][] cells, ArrayList<Player> players, int playerTurn, int index, Cell goFromCell) {
+        ArrayList<Cell> choices = allNearNotPlayerCells(cells, players, playerTurn, goFromCell);
         Cell go = choices.get(index);
         return go;
     }
@@ -50,13 +50,12 @@ public class BadBot extends Player {
     }
 
 
-    ArrayList<Cell> allNotPlayerCells(Cell[][] cells, ArrayList<Player> players, int playerTurn) {
+    ArrayList<Cell> allNearNotPlayerCells(Cell[][] cells, ArrayList<Player> players, int playerTurn, Cell goFromCell) {
         ArrayList<Cell> allNotPlayerCells = new ArrayList<>();
 
-        for (Cell[] cells1 : cells)
-            for (Cell cell : cells1)
-                if (cell != null && cell.player != players.get(playerTurn))
-                    allNotPlayerCells.add(cell);
+        for (Cell cell : goFromCell.nearCells(cells))
+            if (cell != null && cell.player != players.get(playerTurn))
+                allNotPlayerCells.add(cell);
         return allNotPlayerCells;
     }
 }
