@@ -184,94 +184,104 @@ public class Main {
 //                    if (players.get(playerTurn) instanceof Bot) {
 //                        outputs = ((Bot)players.get(playerTurn)).turn(cells, players, playerTurn);
 //                    }
+                    Cell goCell = null;
                     int index = 0;
-                    while (true) {
-//                        String[] select;
-                        String line;
+                    step:
+                    {
                         while (true) {
+                            while (true) {
+//                        String[] select;
+                                String line;
+                                while (true) {
 //                            if (players.get(playerTurn) instanceof Bot)
 //                                line = String.valueOf(outputs.get(0).cellI + outputs.get(0).cellJ);
-                            if (players.get(playerTurn) instanceof BadBot) {
-                                selectedCell = ((BadBot)players.get(playerTurn)).select(cells, players, playerTurn, index);
-                                index++;
-                                break;
-                            }
-                            else {
-                                line = scanner.nextLine();
-                                Answer answer = getCellFromMessage(line, players.get(playerTurn), cells);
-                                if (answer != null) {
-                                    if (answer.cell == null) {
-                                        if (answer.good)
-                                            //Skip phase
-                                            break first;
-                                        else
-                                            System.err.println("Invalid input!");
-                                    } else {
-                                        selectedCell = answer.cell;
+                                    if (players.get(playerTurn) instanceof BadBot) {
+                                        selectedCell = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, index);
+                                        index++;
                                         break;
+                                    } else {
+                                        line = scanner.nextLine();
+                                        Answer answer = getCellFromMessage(line, players.get(playerTurn), cells);
+                                        if (answer != null) {
+                                            if (answer.cell == null) {
+                                                if (answer.good)
+                                                    //Skip phase
+                                                    break first;
+                                                else
+                                                    System.err.println("Invalid input!");
+                                            } else {
+                                                selectedCell = answer.cell;
+                                                break;
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                        }
-                        canTurn = false;
-                        nearCells = selectedCell.nearCells(cells);
-                        for (Cell cell : nearCells) {
-                            if (cell != null && cell.player != players.get(playerTurn)) {
-                                canTurn = true;
-                            }
-                        }
-                        if (!canTurn || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
-                            if (!(players.get(playerTurn) instanceof BadBot))
-                                System.err.println("Invalid choice!");
-                        } else {
-                            print("selectCell", selectedCell.cellI, selectedCell.cellJ);
+                                canTurn = false;
+                                nearCells = selectedCell.nearCells(cells);
+                                for (Cell cell : nearCells) {
+                                    if (cell != null && cell.player != players.get(playerTurn)) {
+                                        canTurn = true;
+                                    }
+                                }
+                                if (!canTurn || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
+                                    if (!(players.get(playerTurn) instanceof BadBot))
+                                        System.err.println("Invalid choice!");
+                                } else {
+                                    print("selectCell", selectedCell.cellI, selectedCell.cellJ);
 //                            System.out.println("Selected cell: " + cordI + " " + cordJ);
-                            break;
-                        }
-                    }
+                                    break;
+                                }
+                            }
 //                    nearCells = selectedCell.nearCells(cells);
-                    Cell goCell;
-                    index = 0;
-                    while (true) {
+                            index = 0;
+                            goSelect:
+                            {
+                                while (true) {
 //                        String[] go;
-                        String line;
+                                    String line;
 //                        int goI;
 //                        int goJ;
-                        while (true) {
+                                    while (true) {
 //                            if (players.get(playerTurn) instanceof Bot)
 //                                line = String.valueOf(outputs.get(1).cellI + outputs.get(1).cellJ);
-                            if (players.get(playerTurn) instanceof BadBot) {
-                                goCell = ((BadBot)players.get(playerTurn)).go(cells, players, playerTurn, index);
-                                index++;
-                                break;
-                            }
-                            else {
-                                line = scanner.nextLine();
-                                Answer answer = getCellFromMessage(line, players.get(playerTurn), cells);
-                                if (answer != null) {
-                                    if (answer.cell == null) {
-                                        if (answer.good)
-                                            //Skip phase
-                                            break first;
-                                        else
-                                            System.err.println("Invalid input!");
+                                        if (players.get(playerTurn) instanceof BadBot) {
+                                            goCell = ((BadBot) players.get(playerTurn)).go(cells, players, playerTurn, index);
+                                            index++;
+                                            break;
+                                        } else {
+                                            line = scanner.nextLine();
+                                            Answer answer = getCellFromMessage(line, players.get(playerTurn), cells);
+                                            if (answer != null) {
+                                                if (answer.cell == null) {
+                                                    if (answer.good)
+                                                        //Skip phase
+                                                        break first;
+                                                    else
+                                                        System.err.println("Invalid input!");
+                                                } else {
+                                                    if (answer.good) {
+                                                        goCell = answer.cell;
+                                                        break;
+                                                    } else
+                                                        break goSelect;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (!nearCells.contains(goCell) || (goCell.player != null && goCell.player.equals(players.get(playerTurn)))) {
+                                        if (!(players.get(playerTurn) instanceof BadBot))
+                                            System.err.println("Invalid choice!");
                                     } else {
-                                        goCell = answer.cell;
-                                        break;
+                                        break step;
                                     }
                                 }
                             }
                         }
-                        if (!nearCells.contains(goCell) || (goCell.player != null && goCell.player.equals(players.get(playerTurn)))) {
-                            if (!(players.get(playerTurn) instanceof BadBot))
-                                System.err.println("Invalid choice!");
-                        } else {
-                            break;
-                        }
                     }
-                    Cell[] cellsAttack = selectedCell.cellAttack(cells, goCell, players, playerTurn);
-                    selectedCell = cellsAttack[0];
-                    goCell = cellsAttack[1];
+                    selectedCell.cellAttack(cells, goCell, players, playerTurn);
+//                    Cell[] cellsAttack = selectedCell.cellAttack(cells, goCell, players, playerTurn);
+//                    selectedCell = cellsAttack[0];
+//                    goCell = cellsAttack[1];
 //                    if (goCell.player == null) {
 //                        goCell.player = players.get(playerTurn);
 //                        goCell.unit = selectedCell.unit - 1;
@@ -426,6 +436,9 @@ public class Main {
             message = messages[1];
             if (message.toLowerCase().equals("next phase")) {
                 return new Answer(null, true);
+            }
+            else if (message.toLowerCase().equals("reselect")) {
+                return new Answer(new Cell(-1, -1), false);
             }
             messages = message.split(" ");
             try {
