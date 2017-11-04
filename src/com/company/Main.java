@@ -98,7 +98,7 @@ public class Main {
 //            bot = new Bot("Bot", true);
             badBot = new BadBot("BadBot", true);
 //            players.add(bot);
-            players.add(badBot);
+            players.add(0, badBot);
 //            players.get(players.size() - 1).color = (char) ('A' + players.size() - 1);
 //            print("playerColor", "Bot", players.get(players.size() - 1).color);
         }
