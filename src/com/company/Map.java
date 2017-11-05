@@ -26,55 +26,55 @@ public class Map {
         }
     }
 
-    public Cell[][] map1Cells(ArrayList<Player> players) {
-//        height = 17;
-//        width = 17;
-        Cell[][] cells = new Cell[17][17];
-        String[] lines = new String[17];
-        lines[0] = "__|__|__|__|__|__|__|##|__|##|__|__|__|__|__|__|__";
-        lines[1] = "__|__|__|__|##|__|##|__|##|__|__|__|__|__|__|__|__";
-        lines[2] = "__|__|__|##|__|##|__|##|__|##|__|__|__|__|__|__|__";
-        lines[3] = "__|__|__|__|##|__|##|__|##|__|##|__|##|__|__|__|__";
-        lines[4] = "__|__|__|__|__|##|__|##|__|##|__|##|__|##|__|__|__";
-        lines[5] = "__|__|##|__|##|__|##|__|##|__|2A|__|##|__|##|__|##";
-        lines[6] = "__|__|__|##|__|##|__|##|__|##|__|__|__|__|__|__|__";
-        lines[7] = "##|__|##|__|##|__|##|__|##|__|##|__|##|__|__|__|__";
-        lines[8] = "__|##|__|##|__|__|__|__|__|##|__|##|__|__|__|__|__";
-        lines[9] = "##|__|##|__|##|__|##|__|##|__|##|__|##|__|__|__|__";
-        lines[10] = "__|__|__|##|__|##|__|##|__|##|__|__|__|__|__|__|__";
-        lines[11] = "__|__|##|__|##|__|##|__|##|__|3B|__|##|__|##|__|##";
-        lines[12] = "__|__|__|__|__|##|__|##|__|##|__|##|__|##|__|__|__";
-        lines[13] = "__|__|__|__|##|__|##|__|##|__|##|__|##|__|__|__|__";
-        lines[14] = "__|__|__|##|__|##|__|##|__|##|__|__|__|__|__|__|__";
-        lines[15] = "__|__|__|__|##|__|##|__|##|__|__|__|__|__|__|__|__";
-        lines[16] = "__|__|__|__|__|__|__|##|__|##|__|__|__|__|__|__|__";
-
-        for (int i = 0; i < lines.length; i++) {
-            String[] line = lines[i].split("|");
-            ArrayList<String> trueLine = new ArrayList<>();
-            for (int i1 = 0; i1 < line.length; i1 += 3) {
-                trueLine.add(line[i1] + line[i1 + 1]);
-            }
-            for (int j = 0; j < trueLine.size(); j++) {
-                if (trueLine.get(j).equals("__")) {
-                    cells[i][j] = null;
-                } else if (trueLine.get(j).equals("##")) {
-                    cells[i][j] = new Cell(i, j);
-                } else {
-                    Cell cell = new Cell(i, j);
-//                    StringBuilder stringBuilder = new StringBuilder();
-//                    stringBuilder
-                    if (trueLine.get(j).charAt(1) == 'A')
-                        cell.player = players.get(0);
-                    else
-                        cell.player = players.get(1);
-                    cell.unit = Integer.parseInt(trueLine.get(j).charAt(0) + "");
-                    cells[i][j] = cell;
-                }
-            }
-        }
-        return cells;
-    }
+//    public Cell[][] map1Cells(ArrayList<Player> players) {
+////        height = 17;
+////        width = 17;
+//        Cell[][] cells = new Cell[17][17];
+//        String[] lines = new String[17];
+//        lines[0] = "__|__|__|__|__|__|__|##|__|##|__|__|__|__|__|__|__";
+//        lines[1] = "__|__|__|__|##|__|##|__|##|__|__|__|__|__|__|__|__";
+//        lines[2] = "__|__|__|##|__|##|__|##|__|##|__|__|__|__|__|__|__";
+//        lines[3] = "__|__|__|__|##|__|##|__|##|__|##|__|##|__|__|__|__";
+//        lines[4] = "__|__|__|__|__|##|__|##|__|##|__|##|__|##|__|__|__";
+//        lines[5] = "__|__|##|__|##|__|##|__|##|__|2A|__|##|__|##|__|##";
+//        lines[6] = "__|__|__|##|__|##|__|##|__|##|__|__|__|__|__|__|__";
+//        lines[7] = "##|__|##|__|##|__|##|__|##|__|##|__|##|__|__|__|__";
+//        lines[8] = "__|##|__|##|__|__|__|__|__|##|__|##|__|__|__|__|__";
+//        lines[9] = "##|__|##|__|##|__|##|__|##|__|##|__|##|__|__|__|__";
+//        lines[10] = "__|__|__|##|__|##|__|##|__|##|__|__|__|__|__|__|__";
+//        lines[11] = "__|__|##|__|##|__|##|__|##|__|3B|__|##|__|##|__|##";
+//        lines[12] = "__|__|__|__|__|##|__|##|__|##|__|##|__|##|__|__|__";
+//        lines[13] = "__|__|__|__|##|__|##|__|##|__|##|__|##|__|__|__|__";
+//        lines[14] = "__|__|__|##|__|##|__|##|__|##|__|__|__|__|__|__|__";
+//        lines[15] = "__|__|__|__|##|__|##|__|##|__|__|__|__|__|__|__|__";
+//        lines[16] = "__|__|__|__|__|__|__|##|__|##|__|__|__|__|__|__|__";
+//
+//        for (int i = 0; i < lines.length; i++) {
+//            String[] line = lines[i].split("|");
+//            ArrayList<String> trueLine = new ArrayList<>();
+//            for (int i1 = 0; i1 < line.length; i1 += 3) {
+//                trueLine.add(line[i1] + line[i1 + 1]);
+//            }
+//            for (int j = 0; j < trueLine.size(); j++) {
+//                if (trueLine.get(j).equals("__")) {
+//                    cells[i][j] = null;
+//                } else if (trueLine.get(j).equals("##")) {
+//                    cells[i][j] = new Cell(i, j);
+//                } else {
+//                    Cell cell = new Cell(i, j);
+////                    StringBuilder stringBuilder = new StringBuilder();
+////                    stringBuilder
+//                    if (trueLine.get(j).charAt(1) == 'A')
+//                        cell.player = players.get(0);
+//                    else
+//                        cell.player = players.get(1);
+//                    cell.unit = Integer.parseInt(trueLine.get(j).charAt(0) + "");
+//                    cells[i][j] = cell;
+//                }
+//            }
+//        }
+//        return cells;
+//    }
 
     public Cell[][] mapGenerate(ArrayList<Player> players) {
         Random random = new Random();
@@ -83,9 +83,16 @@ public class Map {
         Cell[][] cells = new Cell[mapI][mapJ];
         for (int i = 0; i < mapI; i++)
             for (int j = 0; j < mapJ; j++)
-                cells[i][j] = new Cell(i, j);
-        int cellI = random.nextInt(5) - 3 + mapI / 2;
-        int cellJ = random.nextInt(5) - 3 + mapJ / 2;
+                if ((i + j) % 2 == 0)
+                    cells[i][j] = new Cell(i, j);
+        int cellI;
+        int cellJ;
+        while (true) {
+            cellI = random.nextInt(5) - 3 + mapI / 2;
+            cellJ = random.nextInt(5) - 3 + mapJ / 2;
+            if (cells[cellI][cellJ] != null)
+                break;
+        }
         cells[cellI][cellJ].unit = 1;
 //        cells[playerI][playerJ] = new Cell(playerI, playerJ);
 //        Cell playerCell = cells[playerI][playerJ];
@@ -150,21 +157,32 @@ public class Map {
 //                    }
 //                    break;
 //            }
-        for (int i = 0; i < mapI * mapJ; i++)
-            for (Cell[] cells1 : cells)
-                for (Cell cell : cells1)
-                    if (cell.unit == i)
-                        for (Cell cell1 : cell.nearCells(cells))
+        for (int i1 = 0; i1 < mapI * mapJ; i1++)
+            for (int i = 0; i < mapI; i++)
+                for (int j = 0; j < mapJ; j++)
+                    if (cells[i][j] != null && cells[i][j].unit == i1)
+                        for (Cell cell : cells[i][j].nearCells(cells))
                             if (random.nextFloat() < 0.15)
-                                cell1.unit = i + 1;
-        for (int i = 0; i < mapI; i++) {
-            for (int j = 0; j < mapJ; j++) {
-                if ((i + j) % 2 != 0 || cells[i][j].unit == 0)
+                                cell.unit = i1 + 1;
+        for (int i = 0; i < mapI; i++)
+            for (int j = 0; j < mapJ; j++)
+                if (cells[i][j] == null || cells[i][j].unit == 0)
                     cells[i][j] = null;
                 else
                     cells[i][j].unit = 0;
-            }
-        }
+        cells[cellI][cellJ].unit = 1;
+        for (int i1 = 1; i1 < mapI * mapJ; i1++)
+            for (int i = 0; i < mapI; i++)
+                for (int j = 0; j < mapJ; j++)
+                    if (cells[i][j] != null && cells[i][j].unit == i1)
+                        for (Cell cell : cells[i][j].nearCells(cells))
+                            cell.unit = i1 + 1;
+        for (int i = 0; i < mapI; i++)
+            for (int j = 0; j < mapJ; j++)
+                if (cells[i][j] == null || cells[i][j].unit == 0)
+                    cells[i][j] = null;
+                else
+                    cells[i][j].unit = 0;
         int playersOnMap = 0;
         setPlayers:
         {

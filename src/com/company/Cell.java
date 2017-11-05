@@ -21,7 +21,7 @@ public class Cell {
             for (int j = 0; j < cells[0].length; j++) {
                 int dI = Math.abs(cellI - i);
                 int dJ = Math.abs(cellJ - j);
-                if ((dI == 0 && dJ == 2) || (dI == 1 && dJ == 1)) {
+                if (cells[i][j] != null && ((dI == 0 && dJ == 2) || (dI == 1 && dJ == 1))) {
                     nearCells.add(cells[i][j]);
                 }
             }
