@@ -155,11 +155,11 @@ public class Map {
                 for (Cell cell : cells1)
                     if (cell.unit == i)
                         for (Cell cell1 : cell.nearCells(cells))
-                            if (random.nextDouble() < 0.1)
+                            if (random.nextFloat() < 0.15)
                                 cell1.unit = i + 1;
         for (int i = 0; i < mapI; i++) {
             for (int j = 0; j < mapJ; j++) {
-                if (cells[i][j].unit == 0)
+                if ((i + j) % 2 != 0 || cells[i][j].unit == 0)
                     cells[i][j] = null;
                 else
                     cells[i][j].unit = 0;
