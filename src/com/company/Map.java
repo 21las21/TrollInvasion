@@ -1,6 +1,7 @@
 package com.company;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static com.company.Main.print;
 
@@ -69,6 +70,124 @@ public class Map {
                         cell.player = players.get(1);
                     cell.unit = Integer.parseInt(trueLine.get(j).charAt(0) + "");
                     cells[i][j] = cell;
+                }
+            }
+        }
+        return cells;
+    }
+
+    public Cell[][] mapGenerate(ArrayList<Player> players) {
+        Random random = new Random();
+        int mapI = (5 + random.nextInt(10) / 2) * players.size();
+        int mapJ = (5 + random.nextInt(10) / 2) * players.size();
+        Cell[][] cells = new Cell[mapI][mapJ];
+        for (int i = 0; i < mapI; i++)
+            for (int j = 0; j < mapJ; j++)
+                cells[i][j] = new Cell(i, j);
+        int cellI = random.nextInt(5) - 3 + mapI / 2;
+        int cellJ = random.nextInt(5) - 3 + mapJ / 2;
+        cells[cellI][cellJ].unit = 1;
+//        cells[playerI][playerJ] = new Cell(playerI, playerJ);
+//        Cell playerCell = cells[playerI][playerJ];
+//        cells[cellI][cellJ] = new Cell(cellI, cellJ);
+//                    switch (random.nextInt(5)) {
+//                case 0:
+//                    if (cellJ - 2 >= 0) {
+//                        cellJ -= 2;
+//                        if (cells[cellI][cellJ] == null)
+//                            cells[cellI][cellJ] = new Cell(cellI, cellJ);
+//                    } else {
+//                        i--;
+//                    }
+//                    break;
+//                case 1:
+//                    if (cellI - 1 >= 0 && cellJ - 1 >= 0) {
+//                        cellI--;
+//                        cellJ--;
+//                        if (cells[cellI][cellJ] == null)
+//                            cells[cellI][cellJ] = new Cell(cellI, cellJ);
+//                    } else {
+//                        i--;
+//                    }
+//                    break;
+//                case 2:
+//                    if (cellI - 1 >= 0 && cellJ + 2 <= mapJ) {
+//                        cellI--;
+//                        cellJ++;
+//                        if (cells[cellI][cellJ] == null)
+//                            cells[cellI][cellJ] = new Cell(cellI, cellJ);
+//                    } else {
+//                        i--;
+//                    }
+//                    break;
+//                case 3:
+//                    if (cellJ + 3 <= mapI) {
+//                        cellJ += 2;
+//                        if (cells[cellI][cellJ] == null)
+//                            cells[cellI][cellJ] = new Cell(cellI, cellJ);
+//                    } else {
+//                        i--;
+//                    }
+//                    break;
+//                case 4:
+//                    if (cellI + 2 <= mapI && cellJ + 2 <= mapJ) {
+//                        cellI++;
+//                        cellJ++;
+//                        if (cells[cellI][cellJ] == null)
+//                            cells[cellI][cellJ] = new Cell(cellI, cellJ);
+//                    } else {
+//                        i--;
+//                    }
+//                    break;
+//                case 5:
+//                    if (cellI + 2 <= mapI && cellJ - 1 >= 0) {
+//                        cellI++;
+//                        cellJ--;
+//                        if (cells[cellI][cellJ] == null)
+//                            cells[cellI][cellJ] = new Cell(cellI, cellJ);
+//                    } else {
+//                        i--;
+//                    }
+//                    break;
+//            }
+        for (int i = 0; i < mapI * mapJ; i++)
+            for (Cell[] cells1 : cells)
+                for (Cell cell : cells1)
+                    if (cell.unit == i)
+                        for (Cell cell1 : cell.nearCells(cells))
+                            if (random.nextDouble() < 0.1)
+                                cell1.unit = i + 1;
+        for (int i = 0; i < mapI; i++) {
+            for (int j = 0; j < mapJ; j++) {
+                if (cells[i][j].unit == 0)
+                    cells[i][j] = null;
+                else
+                    cells[i][j].unit = 0;
+            }
+        }
+        int playersOnMap = 0;
+        setPlayers:
+        {
+            while (playersOnMap < players.size()) {
+                int playerI = random.nextInt(mapI);
+                int playerJ = random.nextInt(mapJ);
+                Cell cellCheck = cells[playerI][playerJ];
+                safeCheck:
+                {
+                    if (cellCheck != null && cellCheck.player == null)
+                        for (Cell cell : cellCheck.nearCells(cells))
+                            if (cell != null && cell.player == null) {
+                                cells[playerI][playerJ].player = players.get(playersOnMap);
+                                if (players.size() == 2 && playersOnMap == 1)
+                                    cells[playerI][playerJ].unit = 3;
+                                else
+                                    cells[playerI][playerJ].unit = 2;
+                                playersOnMap++;
+                                if (playersOnMap >= players.size())
+                                    break setPlayers;
+                                else
+                                    break safeCheck;
+                            }
                 }
             }
         }

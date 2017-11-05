@@ -134,12 +134,13 @@ public class Main {
         }
 
 //        System.out.println("Generating map");
-        if (readyPlayers > 2) {
-            throw new RuntimeException("Can not generate map");
-        }
+//        if (readyPlayers > 2) {
+//            throw new RuntimeException("Can not generate map");
+//        }
 
         Map map = new Map();
-        Cell[][] cells = map.map1Cells(players);
+//        Cell[][] cells = map.map1Cells(players);
+        Cell[][] cells = map.mapGenerate(players);
         Cell selectedCell = null;
         int mapI = cells.length;
         int mapJ = cells[0].length;
