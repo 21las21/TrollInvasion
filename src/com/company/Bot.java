@@ -129,7 +129,7 @@ public class Bot extends Player {
             bestMove = Integer.MIN_VALUE;
             for (int i = 0; i < newGameMoves.size() - 1; i++) {
                 step = newGameMoves.get(i);
-                step[0].cellAttack(cells, step[1], players, playerTurn);
+                step[0].cellAttack(step[1], players, playerTurn);
                 bestMove = Math.max(bestMove, minimax(depth - 1, cells, players, playerTurn, !isMaximisingPlayer).cost);
                 cells = fakeCells;
             }
@@ -138,7 +138,7 @@ public class Bot extends Player {
             bestMove = Integer.MAX_VALUE;
             for (int i = 0; i < newGameMoves.size() - 1; i++) {
                  step = newGameMoves.get(i);
-                step[0].cellAttack(cells, step[1], players, playerTurn);
+                step[0].cellAttack(step[1], players, playerTurn);
                 bestMove = Math.max(bestMove, minimax(depth - 1, cells, players, playerTurn, !isMaximisingPlayer).cost);
                 cells = fakeCells;
             }

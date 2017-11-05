@@ -3,14 +3,14 @@ package com.company;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Cell {
+class Cell {
     Player player;
     int unit;
     int maxUnit = 8;
     int cellI;
     int cellJ;
 
-    public Cell(int iIn, int jIn) {
+    Cell(int iIn, int jIn) {
         cellI = iIn;
         cellJ = jIn;
     }
@@ -29,7 +29,7 @@ public class Cell {
         return nearCells;
     }
 
-    Cell[] cellAttack(Cell[][] cells, Cell defendCell, ArrayList<Player> players, int playerTurn) {
+    void cellAttack(Cell defendCell, ArrayList<Player> players, int playerTurn) {
         if (defendCell.player == null) {
             defendCell.player = players.get(playerTurn);
             defendCell.unit = unit - 1;
@@ -55,9 +55,8 @@ public class Cell {
             }
             unit = 1;
         }
-        Cell[] cellsAttack = new Cell[2];
-        cellsAttack[0] = cells[cellI][cellJ];
-        cellsAttack[1] = defendCell;
-        return cellsAttack;
+//        Cell[] cellsAttack = new Cell[2];
+//        cellsAttack[0] = cells[cellI][cellJ];
+//        cellsAttack[1] = defendCell;
     }
 }

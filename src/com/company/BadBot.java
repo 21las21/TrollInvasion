@@ -1,34 +1,31 @@
 package com.company;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
-public class BadBot extends Player {
-    public BadBot(String name, boolean ready) {
+class BadBot extends Player {
+    BadBot(String name, boolean ready) {
         super(name, ready);
     }
 
     Cell select(Cell[][] cells, ArrayList<Player> players, int playerTurn, int index) {
         ArrayList<Cell> choices = allPlayerMoveableCells(cells, players, playerTurn);
-        Cell select = choices.get(index);
-        return select;
+        return choices.get(index);
     }
 
     Cell go(Cell[][] cells, ArrayList<Player> players, int playerTurn, int index, Cell goFromCell) {
         ArrayList<Cell> choices = allNearNotPlayerCells(cells, players, playerTurn, goFromCell);
-        Cell go = choices.get(index);
-        return go;
+        return choices.get(index);
     }
 
     Cell upgrade(Cell[][] cells, ArrayList<Player> players, int playerTurn, int index) {
         ArrayList<Cell> choices = allPlayerCells(cells, players, playerTurn);
-        Cell upgrade = choices.get(index);
-        return upgrade;
+        if (index >= choices.size())
+            index = index - choices.size();
+        return choices.get(index);
     }
 
 
-    ArrayList<Cell> allPlayerMoveableCells(Cell[][] cells, ArrayList<Player> players, int playerTurn) {
+    private ArrayList<Cell> allPlayerMoveableCells(Cell[][] cells, ArrayList<Player> players, int playerTurn) {
         ArrayList<Cell> allPlayerCells = new ArrayList<>();
 
         for (Cell[] cells1 : cells)
@@ -39,7 +36,7 @@ public class BadBot extends Player {
     }
 
 
-    ArrayList<Cell> allPlayerCells(Cell[][] cells, ArrayList<Player> players, int playerTurn) {
+    private ArrayList<Cell> allPlayerCells(Cell[][] cells, ArrayList<Player> players, int playerTurn) {
         ArrayList<Cell> allPlayerCells = new ArrayList<>();
 
         for (Cell[] cells1 : cells)
@@ -50,7 +47,7 @@ public class BadBot extends Player {
     }
 
 
-    ArrayList<Cell> allNearNotPlayerCells(Cell[][] cells, ArrayList<Player> players, int playerTurn, Cell goFromCell) {
+    private ArrayList<Cell> allNearNotPlayerCells(Cell[][] cells, ArrayList<Player> players, int playerTurn, Cell goFromCell) {
         ArrayList<Cell> allNotPlayerCells = new ArrayList<>();
 
         for (Cell cell : goFromCell.nearCells(cells))

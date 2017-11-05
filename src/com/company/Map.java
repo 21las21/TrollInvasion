@@ -3,11 +3,11 @@ package com.company;
 import java.util.ArrayList;
 import java.util.Random;
 
-import static com.company.Main.print;
+import static com.company.Game.print;
 
-public class Map {
+class Map {
 
-    public void mapPrint(Cell[][] cells) {
+    void mapPrint(Cell[][] cells) {
         for (int i = 0; i < cells.length; i++) {
             Cell[] cells1 = cells[i];
             StringBuilder line = new StringBuilder();
@@ -76,7 +76,7 @@ public class Map {
 //        return cells;
 //    }
 
-    public Cell[][] mapGenerate(ArrayList<Player> players) {
+    Cell[][] mapGenerate(ArrayList<Player> players) {
         Random random = new Random();
         int mapI = (5 + random.nextInt(10) / 2) * players.size();
         int mapJ = (5 + random.nextInt(10) / 2) * players.size();

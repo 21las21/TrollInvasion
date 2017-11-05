@@ -5,7 +5,7 @@ public class Player {
     boolean ready;
     char color;
 
-    public Player(String name, boolean ready) {
+    Player(String name, boolean ready) {
         this.name = name;
         this.ready = ready;
     }
