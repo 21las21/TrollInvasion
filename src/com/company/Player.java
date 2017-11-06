@@ -4,10 +4,16 @@ public class Player {
     String name;
     boolean ready;
     char color;
+    Game game;
 
     Player(String name, boolean ready) {
         this.name = name;
         this.ready = ready;
+    }
+
+    Player(String name, Game game) {
+        this.name = name;
+        this.game = game;
     }
 
     @Override

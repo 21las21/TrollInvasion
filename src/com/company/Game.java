@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 class Game {
-    private ArrayList<Player> players = new ArrayList<>();
+    String name;
+    String outline;
+    boolean isFinished = false;
+    boolean isStarted = false;
+    ArrayList<Player> players = new ArrayList<>();
     private ArrayList<Character> colors = new ArrayList<>();
+    StringBuilder line = new StringBuilder();
     private Cell selectedCell = null;
-    private Cell[][] cells;
+    Cell[][] cells;
     private Map map;
     private int readyPlayers = 0;
     private int colorPlayers = 0;
@@ -21,18 +26,22 @@ class Game {
     private void gameTurn(String playerName, int phase, char playerColor, Cell playerCell) {
         Player player = null;
         if (phase == 0) { //Player join
-            for (Player player1 : players) {
+            for (Player player1 : players)
                 if (player1.name.equals(playerName)) {
                     player = player1;
                     break;
                 }
-            }
             if (player == null) {
                 player = new Player(playerName, false);
                 players.add(player);
+                line.delete(0, line.length());
                 for (Player player1 : players) {
-                    print("readyStatus", player1.name, player1.ready);
+                    print(playerName + ":", "readyStatus", player1.name, player1.ready);
+                    line.append(player1.name).append(',');
                 }
+                line.deleteCharAt(line.length() - 1).append(':');
+                outline = line.toString();
+                print(outline,"+" + playerName);
             }
         } else if (phase == 1) { //Player left
             int index = 0;
@@ -62,9 +71,10 @@ class Game {
             if (player != null && !player.ready) {
                 player.ready = true;
                 readyPlayers++;
-                print("readyStatus", player.name, true);
+                print(outline,"readyStatus", player.name, true);
                 if (readyPlayers > 0 && players.size() == readyPlayers) {
-                    print("gameStart");
+                    isStarted = true;
+                    print(outline, "gameStart");
                     BadBot badBot = new BadBot("Bot", true);
                     if (readyPlayers == 1)
                         players.add(0, badBot);
@@ -82,14 +92,14 @@ class Game {
                         }
                     }
                     for (Player player1 : players) {
-                        print("playerColor", player1.name, player1.color);
+                        print(outline,"playerColor", player1.name, player1.color);
                     }
                     map = new Map();
                     cells = map.mapGenerate(players);
                     mapI = cells.length;
                     mapJ = cells[0].length;
-                    map.mapPrint(cells);
-                    print("turn", players.get(playerTurn).name);
+                    map.mapPrint(this);
+                    print(outline,"turn", players.get(playerTurn).name);
                     if (players.get(playerTurn) instanceof BadBot) {
                         boolean canTurn = false;
                         check:
@@ -106,11 +116,29 @@ class Game {
                                 }
                         }
                         if (canTurn) {
-                            cellPhase = 2;
-                            acceptInput("Bot:next phase");
-                        } else {
                             cellPhase = 0;
-                            acceptInput("Bot:next phase");
+                            if (players.get(playerTurn) instanceof BadBot) {
+                                indexBot = 0;
+                                Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
+                                acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                            }
+                        } else {
+                            energy = 0;
+                            for (int i = 0; i < mapI; i++) {
+                                for (int j = 0; j < mapJ; j++) {
+                                    if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn)) {
+                                        energy++;
+                                    }
+                                }
+                            }
+                            cellPhase = 2; //Upgrade cell
+                            print(outline,"upgradePhase");
+                            print(players.get(playerTurn).name + ":", "energyLeft", energy);
+                            if (players.get(playerTurn) instanceof BadBot) {
+                                indexBot = 0;
+                                Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
+                                acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                            }
                         }
                     }
                 }
@@ -126,7 +154,7 @@ class Game {
                 colorPlayers++;
                 colors.add(playerColor);
                 player.color = playerColor;
-                print("playerColor", player.name, player.color);
+                print(outline,"playerColor", player.name, player.color);
             }
         } else if (phase == 4 && playerName.equals(players.get(playerTurn).name)) { //Skip phase
             if (cellPhase == 2) { //Upgrade cell
@@ -134,12 +162,41 @@ class Game {
                     playerTurn = 0;
                 else
                     playerTurn++;
-                print("turn", players.get(playerTurn).name);
+                print(outline, "turn", players.get(playerTurn).name);
                 cellPhase = 0; //Select cell
                 if (players.get(playerTurn) instanceof BadBot) {
-                    indexBot = 0;
-                    Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
-                    acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                    boolean good = false, canTurn = false;
+                    ArrayList<Cell> nearCells;
+                    check:
+                    {
+                        for (int i = 0; i < mapI; i++)
+                            for (int j = 0; j < mapJ; j++)
+                                if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
+                                    good = true;
+                                    nearCells = cells[i][j].nearCells(cells);
+                                    for (Cell cell : nearCells)
+                                        if (cell != null && cell.player != players.get(playerTurn)) {
+                                            canTurn = true;
+                                            break check;
+                                        }
+                                }
+                    }
+                    if (good && canTurn) {
+                        indexBot = 0;
+                        Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
+                        acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                    }
+                    else {
+                        energy = 0;
+                        for (int i = 0; i < mapI; i++)
+                            for (int j = 0; j < mapJ; j++)
+                                if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn))
+                                    energy++;
+                        cellPhase = 2;
+                        indexBot = 0;
+                        Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
+                        acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                    }
                 }
             }
             else { //Select cell or Go cell
@@ -152,8 +209,8 @@ class Game {
                     }
                 }
                 cellPhase = 2; //Upgrade cell
-                print("upgradePhase");
-                print("energyLeft", energy);
+                print(outline,"upgradePhase");
+                print(players.get(playerTurn).name + ":","energyLeft", energy);
                 if (players.get(playerTurn) instanceof BadBot) {
                     indexBot = 0;
                     Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
@@ -196,7 +253,7 @@ class Game {
                         acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                     }
                 } else {
-                    print("selectCell", selectedCell.cellI, selectedCell.cellJ);
+                    print(outline,"selectCell", selectedCell.cellI, selectedCell.cellJ);
                     cellPhase++;
                     if (players.get(playerTurn) instanceof BadBot) {
                         indexBot = 0;
@@ -233,27 +290,25 @@ class Game {
                             }
                         }
                     }
-                    map.mapPrint(cells);
+                    map.mapPrint(this);
                     if (!enemyExist) {
-                        print("gameFinish", players.get(playerTurn).name);
+                        print(outline,"gameFinish", players.get(playerTurn).name);
+                        acceptInput("gameFinish");
                         return;
                     }
                     check:
                     {
-                        for (int i = 0; i < mapI; i++) {
-                            for (int j = 0; j < mapJ; j++) {
+                        for (int i = 0; i < mapI; i++)
+                            for (int j = 0; j < mapJ; j++)
                                 if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
                                     good = true;
                                     nearCells = cells[i][j].nearCells(cells);
-                                    for (Cell cell : nearCells) {
+                                    for (Cell cell : nearCells)
                                         if (cell != null && cell.player != players.get(playerTurn)) {
                                             canTurn = true;
                                             break check;
                                         }
-                                    }
                                 }
-                            }
-                        }
                     }
                     if (!good || !canTurn) {
                         energy = 0;
@@ -261,8 +316,8 @@ class Game {
                             for (int j = 0; j < mapJ; j++)
                                 if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn))
                                     energy++;
-                        print("upgradePhase");
-                        print("energyLeft", energy);
+                        print(outline,"upgradePhase");
+                        print(players.get(playerTurn).name + ":","energyLeft", energy);
                         cellPhase++;
                         if (players.get(playerTurn) instanceof BadBot) {
                             indexBot = 0;
@@ -297,20 +352,42 @@ class Game {
                 } else {
                     energy--;
                     upgradeCell.unit++;
-                    map.mapPrint(cells);
-                    print("energyLeft", energy);
+                    map.mapPrint(this);
+                    print(players.get(playerTurn).name + ":","energyLeft", energy);
                 }
                 if (energy == 0) {
                     if (playerTurn >= players.size() - 1)
                         playerTurn = 0;
                     else
                         playerTurn++;
-                    print("turn", players.get(playerTurn).name);
+                    print(outline,"turn", players.get(playerTurn).name);
                     cellPhase = 0;
                     if (players.get(playerTurn) instanceof BadBot) {
-                        indexBot = 0;
-                        Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
-                        acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                        check:
+                        {
+                            for (int i = 0; i < mapI; i++)
+                                for (int j = 0; j < mapJ; j++)
+                                    if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
+                                        good = true;
+                                        nearCells = cells[i][j].nearCells(cells);
+                                        for (Cell cell : nearCells)
+                                            if (cell != null && cell.player != players.get(playerTurn)) {
+                                                canTurn = true;
+                                                break check;
+                                            }
+                                    }
+                        }
+                        if (good && canTurn) {
+                            indexBot = 0;
+                            Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
+                            acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                        }
+                        else {
+                            cellPhase = 2;
+                            indexBot = 0;
+                            Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
+                            acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                        }
                     }
                 } else if (players.get(playerTurn) instanceof BadBot) {
                     indexBot++;
@@ -334,7 +411,7 @@ class Game {
         String player = null;
         Cell cell = null;
         int phase = -1;
-        if (input.startsWith("+")) {
+        if (!this.isStarted && input.startsWith("+")) {
             player = input.substring(1);
             phase = 0; //Player join
         }
@@ -342,13 +419,17 @@ class Game {
             player = input.substring(1);
             phase = 1; //Player left
         }
+        else if (input.equals("gameFinish")) {
+            isFinished = true;
+            return;
+        }
         else {
             String[] inputs = input.split(":");
             if (inputs.length == 2) {
                 player = inputs[0];
-                if (inputs[1].toLowerCase().equals("ready")) {
+                if (!this.isStarted && inputs[1].toLowerCase().equals("ready")) {
                     phase = 2; //Player ready
-                } else if (inputs[1].toLowerCase().startsWith("selectColor")) {
+                } else if (!this.isStarted && inputs[1].toLowerCase().startsWith("selectColor")) {
                     inputs = inputs[1].split(" ");
                     if (inputs.length == 2) {
                         phase = 3; //Player select color
@@ -381,9 +462,5 @@ class Game {
         else {
             return new Answer(null);
         }
-    }
-
-    boolean isFinished() {
-        return false;
     }
 }

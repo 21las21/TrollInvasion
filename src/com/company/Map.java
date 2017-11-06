@@ -7,7 +7,8 @@ import static com.company.Game.print;
 
 class Map {
 
-    void mapPrint(Cell[][] cells) {
+    void mapPrint(Game game) {
+        Cell[][] cells = game.cells;
         for (int i = 0; i < cells.length; i++) {
             Cell[] cells1 = cells[i];
             StringBuilder line = new StringBuilder();
@@ -22,7 +23,7 @@ class Map {
                     line.append("|");
                 }
             }
-            print("mapLine", i, line.substring(0, line.length() - 1));
+            print(game.outline,"mapLine", i, line.substring(0, line.length() - 1));
         }
     }
 
@@ -190,22 +191,27 @@ class Map {
                 int playerI = random.nextInt(mapI);
                 int playerJ = random.nextInt(mapJ);
                 Cell cellCheck = cells[playerI][playerJ];
+                boolean good = false;
                 safeCheck:
                 {
                     if (cellCheck != null && cellCheck.player == null)
                         for (Cell cell : cellCheck.nearCells(cells))
                             if (cell != null && cell.player == null) {
-                                cells[playerI][playerJ].player = players.get(playersOnMap);
-                                if (players.size() == 2 && playersOnMap == 1)
-                                    cells[playerI][playerJ].unit = 3;
-                                else
-                                    cells[playerI][playerJ].unit = 2;
-                                playersOnMap++;
-                                if (playersOnMap >= players.size())
-                                    break setPlayers;
-                                else
-                                    break safeCheck;
+                                good = true;
+                            } else {
+                                good = false;
+                                break safeCheck;
                             }
+                }
+                if (good) {
+                    cells[playerI][playerJ].player = players.get(playersOnMap);
+                    if (players.size() == 2 && playersOnMap == 1)
+                        cells[playerI][playerJ].unit = 3;
+                    else
+                        cells[playerI][playerJ].unit = 2;
+                    playersOnMap++;
+                    if (playersOnMap >= players.size())
+                        break setPlayers;
                 }
             }
         }
