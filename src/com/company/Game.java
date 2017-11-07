@@ -10,7 +10,7 @@ class Game {
     boolean isStarted = false;
     ArrayList<Player> players = new ArrayList<>();
     private ArrayList<Character> colors = new ArrayList<>();
-    StringBuilder line = new StringBuilder();
+    private StringBuilder line = new StringBuilder();
     private Cell selectedCell = null;
     Cell[][] cells;
     private Map map;

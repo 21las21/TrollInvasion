@@ -23,12 +23,20 @@ public class Main {
                         input = line.split(" ");
                         if (input.length == 2) {
                             String gameName = input[1];
-                            Game game = new Game();
-                            games.add(game);
-                            player = new Player(name, game);
-                            game.name = gameName;
-                            players.add(player);
-                            game.acceptInput("+" + name);
+                            boolean good = true;
+                            for (Game game : games)
+                                if (game.name.equals(gameName)) {
+                                    good = false;
+                                    break;
+                                }
+                            if (good) {
+                                Game game = new Game();
+                                games.add(game);
+                                player = new Player(name, game);
+                                game.name = gameName;
+                                players.add(player);
+                                game.acceptInput("+" + name);
+                            }
                         }
                     } else if (line.startsWith("joinGame")) {
                         input = line.split(" ");
