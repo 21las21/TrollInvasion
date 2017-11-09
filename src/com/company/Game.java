@@ -41,7 +41,7 @@ class Game {
                 }
                 line.deleteCharAt(line.length() - 1).append(':');
                 outline = line.toString();
-                print(outline,"+" + playerName);
+//                print(outline,"+" + playerName);
             }
         } else if (phase == 1) { //Player left
             int index = 0;
