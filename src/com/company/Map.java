@@ -215,6 +215,20 @@ class Map {
                 }
             }
         }
+//        for (Cell[] cells1 : cells) {
+//            for (Cell cell :    )
+//            boolean good = false;
+//            for (int i = 0; i < mapI; i++) {
+//                Cell cell = cells1[i];
+//                if (cell != null) {
+//                    good = true;
+//                    break;
+//                }
+//            }
+//            if (!good)
+//                for (int i = 0; i < mapI; i++)
+//                    cells1[i].unit = 9;
+//        }
         return cells;
     }
 }

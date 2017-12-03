@@ -20,7 +20,7 @@ class BadBot extends Player {
     Cell upgrade(Cell[][] cells, ArrayList<Player> players, int playerTurn, int index) {
         ArrayList<Cell> choices = allPlayerCells(cells, players, playerTurn);
         if (index >= choices.size())
-            index = index - choices.size();
+            index = 0;
         return choices.get(index);
     }
 

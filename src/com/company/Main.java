@@ -53,7 +53,7 @@ public class Main {
                     } else if (line.equals("listGames")) {
                         for (Game game : games)
                             if (!game.isStarted)
-                                System.out.println(game.name + ": " + game.players.size() + " players");
+                                System.out.println(name + ": gameList " + game.name + " " + game.players.size());
                     }
                 } else {
                     for (Game game : games)

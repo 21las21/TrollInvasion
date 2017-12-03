@@ -41,7 +41,8 @@ class Game {
                 }
                 line.deleteCharAt(line.length() - 1).append(':');
                 outline = line.toString();
-//                print(outline,"+" + playerName);
+                print(playerName + ": gameEntered ", name);
+//                print(outline, playerName + " join");
             }
         } else if (phase == 1) { //Player left
             int index = 0;
@@ -116,7 +117,7 @@ class Game {
                                 }
                         }
                         if (canTurn) {
-                            cellPhase = 0;
+                            cellPhase = 0; //Select cell
                             if (players.get(playerTurn) instanceof BadBot) {
                                 indexBot = 0;
                                 Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
@@ -201,16 +202,13 @@ class Game {
             }
             else { //Select cell or Go cell
                 energy = 0;
-                for (int i = 0; i < mapI; i++) {
-                    for (int j = 0; j < mapJ; j++) {
-                        if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn)) {
+                for (int i = 0; i < mapI; i++)
+                    for (int j = 0; j < mapJ; j++)
+                        if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn))
                             energy++;
-                        }
-                    }
-                }
                 cellPhase = 2; //Upgrade cell
-                print(outline,"upgradePhase");
-                print(players.get(playerTurn).name + ":","energyLeft", energy);
+                print(outline, "upgradePhase");
+                print(players.get(playerTurn).name + ":", "energyLeft", energy);
                 if (players.get(playerTurn) instanceof BadBot) {
                     indexBot = 0;
                     Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
@@ -355,7 +353,7 @@ class Game {
                     map.mapPrint(this);
                     print(players.get(playerTurn).name + ":","energyLeft", energy);
                 }
-                if (energy == 0) {
+                if (energy <= 0) {
                     if (playerTurn >= players.size() - 1)
                         playerTurn = 0;
                     else
