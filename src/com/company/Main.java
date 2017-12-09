@@ -56,11 +56,20 @@ public class Main {
                                 System.out.println(name + ": gameList " + game.name + " " + game.players.size());
                     }
                 } else {
-                    for (Game game : games)
-                        if (!game.isFinished && game.name.equals(player.game.name)) {
-                            game.acceptInput(line);
-                            break;
-                        }
+                    if (input[1].equals("leaveGame")) {
+                        players.remove(player);
+                            if (player.game.players.size() == 1) {
+                                games.remove(player.game);
+                            }
+                            player.game.acceptInput('-' + player.name);
+                    }
+                    else {
+                        for (Game game : games)
+                            if (!game.isFinished && game.name.equals(player.game.name)) {
+                                game.acceptInput(line);
+                                break;
+                            }
+                    }
                 }
             }
         }

@@ -34,6 +34,7 @@ class Game {
             if (player == null) {
                 player = new Player(playerName, false);
                 players.add(player);
+//                player.game = this;
                 line.delete(0, line.length());
                 for (Player player1 : players) {
                     print(playerName + ":", "readyStatus", player1.name, player1.ready);
@@ -41,7 +42,7 @@ class Game {
                 }
                 line.deleteCharAt(line.length() - 1).append(':');
                 outline = line.toString();
-                print(playerName + ": gameEntered ", name);
+                print(outline + " gameEntered", name);
 //                print(outline, playerName + " join");
             }
         } else if (phase == 1) { //Player left
@@ -54,6 +55,21 @@ class Game {
                 index++;
             }
             if (player != null) {
+                print(outline + " gameLeft", player.name);
+                line = new StringBuilder();
+                for (Player player1 : players) {
+                    line.append(player1.name).append(',');
+                }
+                line.deleteCharAt(line.length() - 1).append(':');
+                outline = line.toString();
+            }
+            if (!isStarted) {
+                if (player != null) {
+                    players.remove(index);
+                    player.game = null;
+                }
+            } else if (player != null) {
+                player.game = null;
                 BadBot badBot = new BadBot("Bot", true);
                 badBot.color = player.color;
                 players.set(index, badBot);
@@ -419,7 +435,6 @@ class Game {
         }
         else if (input.equals("gameFinish")) {
             isFinished = true;
-            return;
         }
         else {
             String[] inputs = input.split(":");
@@ -433,10 +448,17 @@ class Game {
                         phase = 3; //Player select color
                         color = inputs[1].charAt(0);
                     }
-                } else if (inputs[1].toLowerCase().equals("next phase")) {
+                } else if (isStarted && inputs[1].toLowerCase().equals("next phase")) {
                     phase = 4; //Skip phase
+//                } else if (inputs[1].equals("leaveGame")) {
+//                    phase = 1; //Player left
                 } else {
-                    cell = getCellFromMessage(input).cell;
+                    try {
+                        cell = getCellFromMessage(input).cell;
+                    }
+                    catch (Exception e) {
+                        return;
+                    }
                     if (cell != null)
                         phase = 5; //Cell phase
                 }
