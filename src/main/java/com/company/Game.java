@@ -10,6 +10,7 @@ class Game {
     boolean isFinished = false;
     boolean isStarted = false;
     ArrayList<Player> players = new ArrayList<>();
+    private ArrayList<Player> spectators = new ArrayList<>();
     private ArrayList<Player> playersRnd = new ArrayList<>();
     private ArrayList<Character> colors = new ArrayList<>();
     private StringBuilder line = new StringBuilder();
@@ -25,7 +26,7 @@ class Game {
     private int mapI;
     private int mapJ;
 
-    private void gameTurn(String playerName, int phase, char playerColor, Cell playerCell) {
+    private void gameTurn(String playerName, int phase, char playerColor, Cell playerCell, int playerMode) {
         Player player = null;
         if (phase == 0) { //Player join
             for (Player player1 : players)
@@ -34,95 +35,111 @@ class Game {
                     break;
                 }
             if (player == null) {
-                player = new Player(playerName, false);
-                players.add(player);
+                if (playerMode == 1) { //Player
+                    player = new Player(playerName, false);
+                    players.add(player);
 //                player.game = this;
-                line.delete(0, line.length());
-                for (Player player1 : players)
-                    line.append(player1.name).append(',');
-                line.deleteCharAt(line.length() - 1).append(':');
-                outline = line.toString();
-                print(playerName + ": gameEntered", name);
-                for (Player player1 : players)
-                    print(outline, "readyStatus", player1.name, player1.ready);
 //                print(outline, playerName + " join");
+                } else if (playerMode == 0) { //Spectator
+                    player = new Player(playerName, this);
+                    spectators.add(player);
+                } else return;
+                getOutline();
+                if (playerMode == 0) {
+                    print(playerName + ": gameEntered", name, "spectator");
+                    print(outline, "spectatorJoin", playerName);
+                } else {
+                    print(playerName + ": gameEntered", name, "player");
+                    for (Player player1 : players)
+                        print(outline, "readyStatus", player1.name, player1.ready);
+                }
             }
         } else if (phase == 1) { //Player left
             int index = 0;
-            for (Player player1 : players) {
-                if (player1.name.equals(playerName)) {
-                    player = player1;
-                    break;
-                }
-                index++;
-            }
-            if (player != null) {
-                readyPlayers--;
-                print(outline + " gameLeft", player.name);
-                if (!isStarted) {
-                    players.remove(index);
-                    player.game = null;
-                }
-                line = new StringBuilder();
+            if (playerMode == 1) {
                 for (Player player1 : players) {
-                    if (!player1.name.equals(playerName))
-                        line.append(player1.name).append(',');
-                }
-                if (line.length() > 0) {
-                    line.deleteCharAt(line.length() - 1).append(':');
-                    outline = line.toString();
-                }
-            }
-            if (isStarted && player != null) {
-                player.game = null;
-                BadBot badBot = new BadBot("Bot", true);
-                badBot.color = player.color;
-                players.set(index, badBot);
-                for (Cell[] cellRaw : cells)
-                    for (Cell cellCheck : cellRaw)
-                        if (cellCheck != null && cellCheck.player != null && cellCheck.player.equals(player))
-                            cellCheck.player = badBot;
-                print(outline, "turn", players.get(playerTurn).name);
-                if (players.get(playerTurn) instanceof BadBot) {
-                    boolean canTurn = false;
-                    check:
-                    {
-                        for (Cell[] cells1 : cells)
-                            for (Cell cell : cells1) {
-                                if (cell != null)
-                                    for (Cell cell1 : cell.nearCells(cells)) {
-                                        if (cell1 != null && cell1.player != players.get(playerTurn)) {
-                                            canTurn = true;
-                                            break check;
-                                        }
-                                    }
-                            }
+                    if (player1.name.equals(playerName)) {
+                        player = player1;
+                        break;
                     }
-                    if (canTurn) {
-                        cellPhase = 0; //Select cell
-                        if (players.get(playerTurn) instanceof BadBot) {
-                            indexBot = 0;
-                            Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
-                            acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                    index++;
+                }
+                if (player != null) {
+                    readyPlayers--;
+                    print(outline + " gameLeft", player.name);
+                    if (!isStarted) {
+                        players.remove(index);
+                        player.game = null;
+                    }
+                    getOutline();
+                    if (line.length() > 0) {
+                        line.deleteCharAt(line.length() - 1).append(':');
+                        outline = line.toString();
+                    }
+                }
+                if (isStarted && player != null) {
+                    player.game = null;
+                    BadBot badBot = new BadBot("Bot", true);
+                    badBot.color = player.color;
+                    players.set(index, badBot);
+                    for (Cell[] cellRaw : cells)
+                        for (Cell cellCheck : cellRaw)
+                            if (cellCheck != null && cellCheck.player != null && cellCheck.player.equals(player))
+                                cellCheck.player = badBot;
+                    print(outline, "turn", players.get(playerTurn).name);
+                    if (players.get(playerTurn) instanceof BadBot) {
+                        boolean canTurn = false;
+                        check:
+                        {
+                            for (Cell[] cells1 : cells)
+                                for (Cell cell : cells1) {
+                                    if (cell != null)
+                                        for (Cell cell1 : cell.nearCells(cells)) {
+                                            if (cell1 != null && cell1.player != players.get(playerTurn)) {
+                                                canTurn = true;
+                                                break check;
+                                            }
+                                        }
+                                }
                         }
-                    } else {
-                        energy = 0;
-                        for (int i = 0; i < mapI; i++) {
-                            for (int j = 0; j < mapJ; j++) {
-                                if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn)) {
-                                    energy++;
+                        if (canTurn) {
+                            cellPhase = 0; //Select cell
+                            if (players.get(playerTurn) instanceof BadBot) {
+                                indexBot = 0;
+                                Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
+                                acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                            }
+                        } else {
+                            energy = 0;
+                            for (int i = 0; i < mapI; i++) {
+                                for (int j = 0; j < mapJ; j++) {
+                                    if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn)) {
+                                        energy++;
+                                    }
                                 }
                             }
-                        }
-                        cellPhase = 2; //Upgrade cell
-                        print(outline, "upgradePhase");
-                        print(players.get(playerTurn).name + ":", "energyLeft", energy);
-                        if (players.get(playerTurn) instanceof BadBot) {
-                            indexBot = 0;
-                            Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
-                            acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                            cellPhase = 2; //Upgrade cell
+                            print(outline, "upgradePhase");
+                            print(players.get(playerTurn).name + ":", "energyLeft", energy);
+                            if (players.get(playerTurn) instanceof BadBot) {
+                                indexBot = 0;
+                                Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
+                                acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                            }
                         }
                     }
+                }
+            } else if (playerMode == 0) {
+                for (Player player1 : spectators)
+                    if (player1.name.equals(playerName)) {
+                        player = player1;
+                        break;
+                    }
+                    index++;
+                if (player != null) {
+                    spectators.remove(index);
+                    print(outline + " gameLeft", player.name);
+                    player.game = null;
                 }
             }
         } else if (phase == 2) { //Player ready
@@ -288,7 +305,7 @@ class Game {
                             energy++;
                 cellPhase = 2; //Upgrade cell
                 print(outline, "upgradePhase");
-                print(players.get(playerTurn).name + ":", "energyLeft", energy);
+                print(outline, "energyLeft", energy);
                 if (players.get(playerTurn) instanceof BadBot) {
                     indexBot = 0;
                     Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
@@ -504,8 +521,15 @@ class Game {
         String player = null;
         Cell cell = null;
         int phase = -1;
-        if (!this.isStarted && input.startsWith("+")) {
-            player = input.substring(1);
+        int playerMode = -1;
+        if (input.startsWith("+")) {
+            String[] playermode = input.substring(1).split(" ");
+            player = playermode[0];
+            String mode = playermode[1];
+            if (mode.equals("spectator"))
+                playerMode = 0; //Spectator
+            else if (!this.isStarted && mode.equals("player"))
+                playerMode = 1; //Player
             phase = 0; //Player join
         }
         else if (input.startsWith("-")) {
@@ -555,7 +579,7 @@ class Game {
                 }
             }
         }
-        gameTurn(player, phase, color, cell);
+        gameTurn(player, phase, color, cell, playerMode);
     }
 
     private static Answer getCellFromMessage(String message) {
@@ -575,5 +599,16 @@ class Game {
         else {
             return new Answer(null);
         }
+    }
+
+    private void getOutline() {
+//        String outline;
+        line.delete(0, line.length());
+        for (Player player1 : players)
+            line.append(player1.name).append(',');
+        for (Player player1 : spectators)
+            line.append(player1.name).append(',');
+        line.deleteCharAt(line.length() - 1).append(':');
+        outline = line.toString();
     }
 }
