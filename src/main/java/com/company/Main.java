@@ -97,13 +97,21 @@ public class Main {
                     if (input[1].equals("leaveGame")) {
                         players.remove(player);
                         lobbyPlayers.add(player);
-                            if (player.game.players.size() == 1) {
-                                games.remove(player.game);
-                            }
-                            player.game.acceptInput('-' + player.name);
+                        ArrayList<Player> gamePlayers = new ArrayList<>();
+                        for (Player player1 : player.game.players)
+                            if (!(player1 instanceof BadBot))
+                                gamePlayers.add(player1);
+                        if (gamePlayers.size() == 1) {
+                            games.remove(player.game);
+                            player.game = null;
+                            player.mode = -1;
+                            System.out.println(name + ": gameLeft " + name);
+                            break;
+                        }
+                        player.game.acceptInput('-' + player.name);
                     }
                     else {
-                        for (Game game : games)
+                        for (Game game : games) {
                             if (!game.isFinished && game.name.equals(player.game.name)) {
 //                                boolean change = false;
 //                                if (!game.isStarted)
@@ -114,7 +122,10 @@ public class Main {
 //                                if (change)
 //                                    System.out.println(name + ": gameList " + game.name + " " + game.players.size() + " started");
                                 break;
+                            } else if (game.isFinished) {
+                                games.remove(game);
                             }
+                        }
                     }
                 }
             }

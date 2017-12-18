@@ -37,11 +37,13 @@ class Game {
             if (player == null) {
                 if (playerMode == 1) { //Player
                     player = new Player(playerName, false);
+                    player.mode = 1;
                     players.add(player);
 //                player.game = this;
 //                print(outline, playerName + " join");
                 } else if (playerMode == 0) { //Spectator
                     player = new Player(playerName, this);
+                    player.mode = 0;
                     spectators.add(player);
                 } else return;
                 getOutline();
@@ -56,28 +58,37 @@ class Game {
             }
         } else if (phase == 1) { //Player left
             int index = 0;
-            if (playerMode == 1) {
-                for (Player player1 : players) {
+            for (Player player1 : players) {
+                if (player1.name.equals(playerName)) {
+                    player = player1;
+                    break;
+                }
+                index++;
+            }
+            if (player == null) {
+                for (Player player1 : spectators) {
                     if (player1.name.equals(playerName)) {
                         player = player1;
                         break;
                     }
                     index++;
                 }
-                if (player != null) {
-                    readyPlayers--;
-                    print(outline + " gameLeft", player.name);
-                    if (!isStarted) {
-                        players.remove(index);
-                        player.game = null;
-                    }
-                    getOutline();
-                    if (line.length() > 0) {
-                        line.deleteCharAt(line.length() - 1).append(':');
-                        outline = line.toString();
-                    }
+                if (player == null)
+                    return;
+            }
+            if (player.mode == 1) {
+                readyPlayers--;
+                print(outline + " gameLeft", player.name);
+                if (!isStarted) {
+                    players.remove(index);
+                    player.game = null;
                 }
-                if (isStarted && player != null) {
+                getOutline();
+                if (line.length() > 0) {
+                    line.deleteCharAt(line.length() - 1).append(':');
+                    outline = line.toString();
+                }
+                if (isStarted) {
                     player.game = null;
                     BadBot badBot = new BadBot("Bot", true);
                     badBot.color = player.color;
@@ -129,18 +140,10 @@ class Game {
                         }
                     }
                 }
-            } else if (playerMode == 0) {
-                for (Player player1 : spectators)
-                    if (player1.name.equals(playerName)) {
-                        player = player1;
-                        break;
-                    }
-                    index++;
-                if (player != null) {
-                    spectators.remove(index);
-                    print(outline + " gameLeft", player.name);
-                    player.game = null;
-                }
+            } else if (player.mode == 0) {
+                spectators.remove(index);
+                print(outline + " gameLeft", player.name);
+                player.game = null;
             }
         } else if (phase == 2) { //Player ready
             for (Player player1 : players) {
@@ -538,6 +541,7 @@ class Game {
         }
         else if (input.equals("gameFinish")) {
             isFinished = true;
+
         }
         else {
             String[] inputs = input.split(":");

@@ -5,6 +5,7 @@ public class Player {
     boolean ready;
     char color;
     Game game;
+    int mode;
 
     Player(String name, boolean ready) {
         this.name = name;
