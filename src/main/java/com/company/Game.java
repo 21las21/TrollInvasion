@@ -82,17 +82,18 @@ class Game {
                 if (!isStarted) {
                     players.remove(index);
                     player.game = null;
+                    getOutline();
                 }
-                getOutline();
-                if (line.length() > 0) {
-                    line.deleteCharAt(line.length() - 1).append(':');
-                    outline = line.toString();
-                }
+//                if (line.length() > 0) {
+//                    line.deleteCharAt(line.length() - 1).append(':');
+//                    outline = line.toString();
+//                }
                 if (isStarted) {
                     player.game = null;
                     BadBot badBot = new BadBot("Bot", true);
                     badBot.color = player.color;
                     players.set(index, badBot);
+                    getOutline();
                     for (Cell[] cellRaw : cells)
                         for (Cell cellCheck : cellRaw)
                             if (cellCheck != null && cellCheck.player != null && cellCheck.player.equals(player))

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
         ArrayList<Game> games = new ArrayList<>();
         ArrayList<Player> players = new ArrayList<>();
@@ -101,14 +101,17 @@ public class Main {
                         for (Player player1 : player.game.players)
                             if (!(player1 instanceof BadBot))
                                 gamePlayers.add(player1);
-                        if (gamePlayers.size() == 1) {
-                            games.remove(player.game);
-                            player.game = null;
-                            player.mode = -1;
-                            System.out.println(name + ": gameLeft " + name);
-                            break;
+                        remove:
+                        {
+                            if (gamePlayers.size() == 1) {
+                                games.remove(player.game);
+                                player.game = null;
+                                player.mode = -1;
+                                System.out.println(name + ": gameLeft " + name);
+                                break remove;
+                            }
+                            player.game.acceptInput('-' + player.name);
                         }
-                        player.game.acceptInput('-' + player.name);
                     }
                     else {
                         for (Game game : games) {
@@ -121,9 +124,10 @@ public class Main {
 //                                    change = false;
 //                                if (change)
 //                                    System.out.println(name + ": gameList " + game.name + " " + game.players.size() + " started");
+                                if (game.isFinished) {
+                                    games.remove(game);
+                                }
                                 break;
-                            } else if (game.isFinished) {
-                                games.remove(game);
                             }
                         }
                     }
