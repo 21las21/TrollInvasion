@@ -439,6 +439,8 @@ class Game {
                         }
                         if (goCell.unit > 1) {
                             acceptInput(goCell.player.name + ":" + goCell.cellI + " " + goCell.cellJ);
+                        } else if (goCell.unit == 1) {
+                            print(outline, "deselectCell");
                         }
                     }
                 }
