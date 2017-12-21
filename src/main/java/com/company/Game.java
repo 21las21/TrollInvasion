@@ -339,7 +339,10 @@ class Game {
             ArrayList<Cell> nearCells;
             if (cellPhase == 0) { //Select cell
                 canTurn = false;
+                Cell memoryCell = selectedCell;
                 selectedCell = playerCell;
+                if (selectedCell.unit < 2)
+                    selectedCell = memoryCell;
                 nearCells = selectedCell.nearCells(cells);
                 for (Cell cell1 : nearCells) {
                     if (cell1 != null && cell1.player != players.get(playerTurn)) {
@@ -488,6 +491,11 @@ class Game {
                         } else {
                             cellPhase = 2;
                             indexBot = 0;
+                            energy = 0;
+                            for (int i = 0; i < mapI; i++)
+                                for (int j = 0; j < mapJ; j++)
+                                    if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn))
+                                        energy++;
                             Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
                             acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                         }
