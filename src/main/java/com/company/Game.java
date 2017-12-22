@@ -316,7 +316,9 @@ class Game {
             }
         } else if (phase == 7) { //Hover over cell
 //            if (playerName.equals(players.get(playerTurn).name))
-            print(outline, "hover",playerName, playerCell.cellI, playerCell.cellJ);
+            print(outline, "hover", playerName, playerCell.cellI, playerCell.cellJ);
+        } else if (phase == 9) { //Hover none
+            print(outline, "hover", playerName, "none");
         } else if (phase == 8 && cellPhase == 2) { //Full upgrade
             check:
             {
@@ -416,13 +418,18 @@ class Game {
                 } else if (!isStarted && inputs[1].toLowerCase().equals("unready")) {
                     phase = 6; //Player unready
                 } else if (isStarted && inputs[1].startsWith("hover")) {
-                    try {
-                        cell = getCellFromMessage(inputs[1].substring("hover ".length())).cell;
-                    } catch (Exception e) {
-                        return;
+                    input = inputs[1].split(" ")[1];
+                    if (input.equals("none")) {
+                        phase = 9; //Hover none
+                    } else {
+                        try {
+                            cell = getCellFromMessage(inputs[1].substring("hover ".length())).cell;
+                        } catch (Exception e) {
+                            return;
+                        }
+                        if (cell != null)
+                            phase = 7; //Hover over cell
                     }
-                    if (cell != null)
-                        phase = 7; //Hover over cell
                 } else if (isStarted && inputs[1].startsWith("fullUp")) {
                     try {
                         cell = getCellFromMessage(inputs[1].substring("fullUp ".length())).cell;
@@ -688,7 +695,8 @@ class Game {
 //        String outline;
         line.delete(0, line.length());
         for (Player player1 : players)
-            line.append(player1.name).append(',');
+            if (!(player1 instanceof BadBot))
+                line.append(player1.name).append(',');
         for (Player player1 : spectators)
             line.append(player1.name).append(',');
         line.deleteCharAt(line.length() - 1).append(':');

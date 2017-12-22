@@ -70,17 +70,21 @@ public class Main {
                             if (input.length == 3) {
                                 String gameName = input[1];
                                 for (Game game : games)
-                                    if (!game.isStarted && game.name.equals(gameName)) {
+                                    if (game.name.equals(gameName)) {
 //                                        player = new Player(name, game);
-                                        player.game = game;
                                         if (line.endsWith(" spectator")) {
                                             players.add(player);
                                             lobbyPlayers.remove(player);
+                                            player.game = game;
                                             game.acceptInput("+" + name + " spectator");
                                         } else if (line.endsWith(" player")) {
-                                            players.add(player);
-                                            lobbyPlayers.remove(player);
+                                            int memoryPlayers = game.players.size();
                                             game.acceptInput("+" + name + " player");
+                                            if (game.players.size() > memoryPlayers) {
+                                                players.add(player);
+                                                lobbyPlayers.remove(player);
+                                                player.game = game;
+                                            }
                                         }
                                         break;
                                     }
