@@ -405,7 +405,7 @@ class Game {
                 player = inputs[0];
                 if (!this.isStarted && inputs[1].toLowerCase().equals("ready")) {
                     phase = 2; //Player ready
-                } else if (!this.isStarted && inputs[1].toLowerCase().startsWith("selectColor")) {
+                } else if (!this.isStarted && inputs[1].toLowerCase().startsWith("selectcolor")) {
                     inputs = inputs[1].split(" ");
                     if (inputs.length == 2) {
                         phase = 3; //Player select color
