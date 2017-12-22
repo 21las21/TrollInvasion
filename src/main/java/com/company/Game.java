@@ -14,6 +14,7 @@ class Game {
     private ArrayList<Player> playersRnd = new ArrayList<>();
     private ArrayList<Character> colors = new ArrayList<>();
     private StringBuilder line = new StringBuilder();
+    private BadBot badBot = new BadBot("Bot", true);
     private Cell selectedCell = null;
     Cell[][] cells;
     private Map map;
@@ -22,7 +23,7 @@ class Game {
     private int cellPhase = 0;
     private int playerTurn = 0;
     private int energy = 0;
-    private int indexBot = 0;
+//    private int indexBot = 0;
     private int mapI;
     private int mapJ;
 
@@ -90,7 +91,6 @@ class Game {
 //                }
                 if (isStarted) {
                     player.game = null;
-                    BadBot badBot = new BadBot("Bot", true);
                     badBot.color = player.color;
                     players.set(index, badBot);
                     getOutline();
@@ -100,42 +100,38 @@ class Game {
                                 cellCheck.player = badBot;
                     print(outline, "turn", players.get(playerTurn).name);
                     if (players.get(playerTurn) instanceof BadBot) {
-                        boolean canTurn = false;
-                        check:
-                        {
-                            for (Cell[] cells1 : cells)
-                                for (Cell cell : cells1) {
-                                    if (cell != null)
-                                        for (Cell cell1 : cell.nearCells(cells)) {
-                                            if (cell1 != null && cell1.player != players.get(playerTurn)) {
-                                                canTurn = true;
-                                                break check;
-                                            }
-                                        }
-                                }
-                        }
-                        if (canTurn) {
+//                        boolean canTurn = false;
+//                        check:
+//                        {
+//                            for (Cell[] cells1 : cells)
+//                                for (Cell cell : cells1) {
+//                                    if (cell != null)
+//                                        for (Cell cell1 : cell.nearCells(cells)) {
+//                                            if (cell1 != null && cell1.player != players.get(playerTurn)) {
+//                                                canTurn = true;
+//                                                break check;
+//                                            }
+//                                        }
+//                                }
+//                        }
+                        int canTurn = canTurn();
+                        if (canTurn != -1) {
                             cellPhase = 0; //Select cell
                             if (players.get(playerTurn) instanceof BadBot) {
-                                indexBot = 0;
-                                Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
+                                badBot.resetIndex();
+                                Cell select = badBot.select(cells, players, playerTurn);
+                                if (select.cellI == -1 && select.cellJ == -1)
+                                    return;
                                 acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                             }
                         } else {
-                            energy = 0;
-                            for (int i = 0; i < mapI; i++) {
-                                for (int j = 0; j < mapJ; j++) {
-                                    if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn)) {
-                                        energy++;
-                                    }
-                                }
-                            }
+                            energyCount();
                             cellPhase = 2; //Upgrade cell
                             print(outline, "upgradePhase");
                             print(players.get(playerTurn).name + ":", "energyLeft", energy);
                             if (players.get(playerTurn) instanceof BadBot) {
-                                indexBot = 0;
-                                Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
+                                badBot.resetIndex();
+                                Cell select = badBot.upgrade(cells, players, playerTurn);
                                 acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                             }
                         }
@@ -194,42 +190,38 @@ class Game {
                     map.mapPrint(this);
                     print(outline, "turn", players.get(playerTurn).name);
                     if (players.get(playerTurn) instanceof BadBot) {
-                        boolean canTurn = false;
-                        check:
-                        {
-                            for (Cell[] cells1 : cells)
-                                for (Cell cell : cells1) {
-                                    if (cell != null)
-                                        for (Cell cell1 : cell.nearCells(cells)) {
-                                            if (cell1 != null && cell1.player != players.get(playerTurn)) {
-                                                canTurn = true;
-                                                break check;
-                                            }
-                                        }
-                                }
-                        }
-                        if (canTurn) {
+//                        boolean canTurn = false;
+//                        check:
+//                        {
+//                            for (Cell[] cells1 : cells)
+//                                for (Cell cell : cells1) {
+//                                    if (cell != null)
+//                                        for (Cell cell1 : cell.nearCells(cells)) {
+//                                            if (cell1 != null && cell1.player != players.get(playerTurn)) {
+//                                                canTurn = true;
+//                                                break check;
+//                                            }
+//                                        }
+//                                }
+//                        }
+                        int canTurn = canTurn();
+                        if (canTurn != -1) {
                             cellPhase = 0; //Select cell
                             if (players.get(playerTurn) instanceof BadBot) {
-                                indexBot = 0;
-                                Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
+                                badBot.resetIndex();
+                                Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn);
+                                if (select.cellI == -1 && select.cellJ == -1)
+                                    return;
                                 acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                             }
                         } else {
-                            energy = 0;
-                            for (int i = 0; i < mapI; i++) {
-                                for (int j = 0; j < mapJ; j++) {
-                                    if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn)) {
-                                        energy++;
-                                    }
-                                }
-                            }
+                            energyCount();
                             cellPhase = 2; //Upgrade cell
                             print(outline, "upgradePhase");
                             print(players.get(playerTurn).name + ":", "energyLeft", energy);
                             if (players.get(playerTurn) instanceof BadBot) {
-                                indexBot = 0;
-                                Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
+                                badBot.resetIndex();
+                                Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn);
                                 acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                             }
                         }
@@ -269,56 +261,68 @@ class Game {
                 print(outline, "turn", players.get(playerTurn).name);
                 cellPhase = 0; //Select cell
                 if (players.get(playerTurn) instanceof BadBot) {
-                    boolean good = false, canTurn = false;
-                    ArrayList<Cell> nearCells;
-                    check:
-                    {
-                        for (int i = 0; i < mapI; i++)
-                            for (int j = 0; j < mapJ; j++)
-                                if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
-                                    good = true;
-                                    nearCells = cells[i][j].nearCells(cells);
-                                    for (Cell cell : nearCells)
-                                        if (cell != null && cell.player != players.get(playerTurn)) {
-                                            canTurn = true;
-                                            break check;
-                                        }
-                                }
-                    }
-                    if (good && canTurn) {
-                        indexBot = 0;
-                        Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
+//                    boolean good = false, canTurn = false;
+//                    ArrayList<Cell> nearCells;
+//                    check:
+//                    {
+//                        for (int i = 0; i < mapI; i++)
+//                            for (int j = 0; j < mapJ; j++)
+//                                if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
+//                                    good = true;
+//                                    nearCells = cells[i][j].nearCells(cells);
+//                                    for (Cell cell : nearCells)
+//                                        if (cell != null && cell.player != players.get(playerTurn)) {
+//                                            canTurn = true;
+//                                            break check;
+//                                        }
+//                                }
+//                    }
+                    int canTurn = canTurn();
+                    if (canTurn != -1) {
+                        badBot.resetIndex();
+                        Cell select = badBot.select(cells, players, playerTurn);
+                        if (select.cellI == -1 && select.cellJ == -1)
+                            return;
                         acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                     } else {
-                        energy = 0;
-                        for (int i = 0; i < mapI; i++)
-                            for (int j = 0; j < mapJ; j++)
-                                if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn))
-                                    energy++;
+                        energyCount();
                         cellPhase = 2;
-                        indexBot = 0;
-                        Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
+                        badBot.resetIndex();
+                        Cell select = badBot.upgrade(cells, players, playerTurn);
                         acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                     }
                 }
             } else { //Select cell or Go cell
-                energy = 0;
-                for (int i = 0; i < mapI; i++)
-                    for (int j = 0; j < mapJ; j++)
-                        if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn))
-                            energy++;
+                energyCount();
                 cellPhase = 2; //Upgrade cell
                 print(outline, "upgradePhase");
                 print(outline, "energyLeft", energy);
                 if (players.get(playerTurn) instanceof BadBot) {
-                    indexBot = 0;
-                    Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
+                    badBot.resetIndex();
+                    Cell select = badBot.upgrade(cells, players, playerTurn);
                     acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                 }
             }
         } else if (phase == 7) { //Hover over cell
-            if (playerName.equals(players.get(playerTurn).name))
-                print(outline, "hover", playerCell.cellI, playerCell.cellJ);
+//            if (playerName.equals(players.get(playerTurn).name))
+            print(outline, "hover",playerName, playerCell.cellI, playerCell.cellJ);
+        } else if (phase == 8 && cellPhase == 2) { //Full upgrade
+            check:
+            {
+                if (!playerName.equals(players.get(playerTurn).name))
+                    return;
+                if (playerCell != null)
+                    for (Cell[] cell1 : cells)
+                        for (Cell cell : cell1)
+                            if (cell != null && cell.cellI == playerCell.cellI && cell.cellJ == playerCell.cellJ) {
+                                playerCell = cell;
+                                break check;
+                            }
+                System.err.println("Invalid choice!");
+                return;
+            }
+            selectedCell = playerCell;
+            upgradePhase(true);
         } else if (phase == 5) {
             check:
             {
@@ -334,190 +338,18 @@ class Game {
                 System.err.println("Invalid choice!");
                 return;
             }
-            Cell goCell, upgradeCell;
-            boolean canTurn = false, good = false;
-            ArrayList<Cell> nearCells;
             if (cellPhase == 0) { //Select cell
-                canTurn = false;
-                Cell memoryCell = selectedCell;
                 selectedCell = playerCell;
-                if (selectedCell.unit < 2)
-                    selectedCell = memoryCell;
-                nearCells = selectedCell.nearCells(cells);
-                for (Cell cell1 : nearCells) {
-                    if (cell1 != null && cell1.player != players.get(playerTurn)) {
-                        canTurn = true;
-                    }
-                }
-                if (!canTurn || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
-                    if (!(players.get(playerTurn) instanceof BadBot))
-                        System.err.println("Invalid choice!");
-                    else {
-                        indexBot++;
-                        Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
-                        acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-                    }
-                } else {
-                    print(outline,"selectCell", selectedCell.cellI, selectedCell.cellJ);
-                    cellPhase++;
-                    if (players.get(playerTurn) instanceof BadBot) {
-                        indexBot = 0;
-                        Cell select = ((BadBot) players.get(playerTurn)).go(cells, players, playerTurn, indexBot, selectedCell);
-                        acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-                    }
-                }
+                selectPhase();
             }
             else if (cellPhase == 1) { //Go cell
-                goCell = playerCell;
-                nearCells = selectedCell.nearCells(cells);
-                if (goCell.player != null && goCell.player.equals(players.get(playerTurn))) {
-                    cellPhase = 0;
-                    acceptInput(goCell.player.name + ":" + goCell.cellI + " " + goCell.cellJ);
-                } else if (!nearCells.contains(goCell)) {
-                    if (!(players.get(playerTurn) instanceof BadBot))
-                        System.err.println("Invalid choice!");
-                    else {
-                        indexBot++;
-                        Cell select = ((BadBot) players.get(playerTurn)).go(cells, players, playerTurn, indexBot, selectedCell);
-                        acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-                    }
-                } else {
-                    selectedCell.cellAttack(goCell, players, playerTurn);
-                    boolean enemyExist = false;
-                    check:
-                    {
-                        for (int i = 0; i < mapI; i++) {
-                            for (int j = 0; j < mapJ; j++) {
-                                if (cells[i][j] != null && cells[i][j].player != null && cells[i][j].player != players.get(playerTurn)) {
-                                    enemyExist = true;
-                                    break check;
-                                }
-                            }
-                        }
-                    }
-                    map.mapPrint(this);
-                    if (!enemyExist) {
-                        print(outline,"gameFinish", players.get(playerTurn).name);
-                        acceptInput("gameFinish");
-                        return;
-                    }
-                    check:
-                    {
-                        for (int i = 0; i < mapI; i++)
-                            for (int j = 0; j < mapJ; j++)
-                                if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
-                                    good = true;
-                                    nearCells = cells[i][j].nearCells(cells);
-                                    for (Cell cell : nearCells)
-                                        if (cell != null && cell.player != players.get(playerTurn)) {
-                                            canTurn = true;
-                                            break check;
-                                        }
-                                }
-                    }
-                    if (!good || !canTurn) {
-                        energy = 0;
-                        for (int i = 0; i < mapI; i++)
-                            for (int j = 0; j < mapJ; j++)
-                                if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn))
-                                    energy++;
-                        print(outline,"upgradePhase");
-//                        print(players.get(playerTurn).name + ":","energyLeft", energy);
-                        print(outline, "energyLeft", energy);
-                        cellPhase++;
-                        if (players.get(playerTurn) instanceof BadBot) {
-                            indexBot = 0;
-                            Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
-                            acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-                        }
-                    } else {
-                        cellPhase--;
-                        if (players.get(playerTurn) instanceof BadBot) {
-                            indexBot = 0;
-                            Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
-                            acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-                        }
-                        if (goCell.unit > 1) {
-                            acceptInput(goCell.player.name + ":" + goCell.cellI + " " + goCell.cellJ);
-                        } else if (goCell.unit == 1) {
-                            print(outline, "deselectCell");
-                        }
-                    }
-                }
+                Cell memoryCell = selectedCell;
+                selectedCell = playerCell;
+                goPhase(memoryCell);
             }
             else if (cellPhase == 2) { //Upgrade cell
-                upgradeCell = playerCell;
-                if (upgradeCell.player != players.get(playerTurn) || upgradeCell.unit == upgradeCell.maxUnit) {
-                    if (!(players.get(playerTurn) instanceof BadBot)) {
-                        System.err.println("Invalid choice!");
-                        return;
-                    }
-                    else {
-                        indexBot++;
-                        Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
-                        acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-                    }
-                } else {
-                    energy--;
-                    upgradeCell.unit++;
-                    map.mapPrint(this);
-//                    print(players.get(playerTurn).name + ":","energyLeft", energy);
-                    print(outline, "energyLeft", energy);
-                }
-                if (energy <= 0) {
-                    if (playerTurn >= players.size() - 1)
-                        playerTurn = 0;
-                    else
-                        playerTurn++;
-                    print(outline,"turn", players.get(playerTurn).name);
-                    cellPhase = 0;
-                    check:
-                    {
-                        for (int i = 0; i < mapI; i++)
-                            for (int j = 0; j < mapJ; j++)
-                                if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
-                                    good = true;
-                                    nearCells = cells[i][j].nearCells(cells);
-                                    for (Cell cell : nearCells)
-                                        if (cell != null && cell.player != players.get(playerTurn)) {
-                                            canTurn = true;
-                                            break check;
-                                        }
-                                }
-                    }
-                    if (players.get(playerTurn) instanceof BadBot) {
-                        if (good && canTurn) {
-                            indexBot = 0;
-                            Cell select = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn, indexBot);
-                            acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-                        } else {
-                            cellPhase = 2;
-                            indexBot = 0;
-                            energy = 0;
-                            for (int i = 0; i < mapI; i++)
-                                for (int j = 0; j < mapJ; j++)
-                                    if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn))
-                                        energy++;
-                            Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
-                            acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-                        }
-                    }
-                    else
-                        if (!canTurn) {
-                            cellPhase = 2;
-                            energy = 0;
-                            for (int i = 0; i < mapI; i++)
-                                for (int j = 0; j < mapJ; j++)
-                                    if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn))
-                                        energy++;
-                            print(outline, "upgradePhase");
-                            print(outline, "energyLeft", energy);
-                        }
-                } else if (players.get(playerTurn) instanceof BadBot) {
-                    indexBot++;
-                    Cell select = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn, indexBot);
-                    acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-                }
+                selectedCell = playerCell;
+                upgradePhase(false);
             }
         }
     }
@@ -575,12 +407,19 @@ class Game {
                 } else if (isStarted && inputs[1].startsWith("hover")) {
                     try {
                         cell = getCellFromMessage(inputs[1].substring("hover ".length())).cell;
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         return;
                     }
                     if (cell != null)
                         phase = 7; //Hover over cell
+                } else if (isStarted && inputs[1].startsWith("fullUp")) {
+                    try {
+                        cell = getCellFromMessage(inputs[1].substring("fullUp ".length())).cell;
+                    } catch (Exception e) {
+                        return;
+                    }
+                    if (cell != null)
+                        phase = 8; //Full upgrade
                 } else {
                     try {
 //                        cell = getCellFromMessage(input).cell;
@@ -598,22 +437,236 @@ class Game {
     }
 
     private static Answer getCellFromMessage(String message) {
-//        String[] messages = message.split(":");
         String[] messages;
         Cell cell = null;
-//        if (messages.length == 2) {
-//            messages = messages[1].split(" ");
         messages = message.split(" ");
         if (messages.length == 2) {
             cell = new Cell(Integer.parseInt(messages[0]), Integer.parseInt(messages[1]));
         }
-//        }
         if (cell != null) {
             return new Answer(cell);
         }
         else {
             return new Answer(null);
         }
+    }
+
+    private void selectPhase() {
+        boolean canTurn = false;
+        Cell memoryCell = selectedCell;
+        if (selectedCell.unit < 2)
+            selectedCell = memoryCell;
+        ArrayList<Cell> nearCells = selectedCell.nearCells(cells);
+        for (Cell cell1 : nearCells) {
+            if (cell1 != null && cell1.player != players.get(playerTurn)) {
+                canTurn = true;
+            }
+        }
+        if (!canTurn || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
+            if (!(players.get(playerTurn) instanceof BadBot))
+                System.err.println("Invalid choice!");
+            else {
+                badBot.nextIndex();
+                Cell select = badBot.select(cells, players, playerTurn);
+                if (select.cellI == -1 && select.cellJ == -1)
+                    return;
+                acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+            }
+        } else {
+            print(outline,"selectCell", selectedCell.cellI, selectedCell.cellJ);
+            cellPhase++;
+            if (players.get(playerTurn) instanceof BadBot) {
+                badBot.resetIndex();
+                Cell select = badBot.go(cells, players, playerTurn, selectedCell);
+                acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+            }
+        }
+    }
+
+    private void goPhase(Cell startCell) {
+        Cell goCell = selectedCell;
+        ArrayList<Cell> nearCells = startCell.nearCells(cells);
+        if (goCell.player != null && goCell.player.equals(players.get(playerTurn))) {
+            cellPhase = 0;
+            acceptInput(goCell.player.name + ":" + goCell.cellI + " " + goCell.cellJ);
+        } else if (!nearCells.contains(goCell)) {
+            if (!(players.get(playerTurn) instanceof BadBot))
+                System.err.println("Invalid choice!");
+            else {
+                badBot.nextIndex();
+                Cell select = badBot.go(cells, players, playerTurn, startCell);
+                acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+            }
+        } else {
+            startCell.cellAttack(goCell, players, playerTurn);
+            boolean enemyExist = false;
+            check:
+            {
+                for (int i = 0; i < mapI; i++) {
+                    for (int j = 0; j < mapJ; j++) {
+                        if (cells[i][j] != null && cells[i][j].player != null && cells[i][j].player != players.get(playerTurn)) {
+                            enemyExist = true;
+                            break check;
+                        }
+                    }
+                }
+            }
+            map.mapPrint(this);
+            if (!enemyExist) {
+                print(outline,"gameFinish", players.get(playerTurn).name);
+                acceptInput("gameFinish");
+                return;
+            }
+//            boolean good = false;
+//            boolean canTurn = false;
+//            check:
+//            {
+//                for (int i = 0; i < mapI; i++)
+//                    for (int j = 0; j < mapJ; j++)
+//                        if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
+//                            good = true;
+//                            nearCells = cells[i][j].nearCells(cells);
+//                            for (Cell cell : nearCells)
+//                                if (cell != null && cell.player != players.get(playerTurn)) {
+//                                    canTurn = true;
+//                                    break check;
+//                                }
+//                        }
+//            }
+            int canTurn = canTurn();
+            if (canTurn != 1) {
+                energyCount();
+                print(outline,"upgradePhase");
+//                        print(players.get(playerTurn).name + ":","energyLeft", energy);
+                print(outline, "energyLeft", energy);
+                cellPhase++;
+                if (players.get(playerTurn) instanceof BadBot) {
+                    badBot.resetIndex();
+                    Cell select = badBot.upgrade(cells, players, playerTurn);
+                    acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                }
+            } else {
+                cellPhase--;
+                if (players.get(playerTurn) instanceof BadBot) {
+                    badBot.resetIndex();
+                    Cell select = badBot.select(cells, players, playerTurn);
+                    if (select.cellI == -1 && select.cellJ == -1)
+                        return;
+                    acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                } else {
+                    if (goCell.unit > 1) {
+                        acceptInput(goCell.player.name + ":" + goCell.cellI + " " + goCell.cellJ);
+                    } else if (goCell.unit == 1) {
+                        print(outline, "deselectCell");
+                    }
+                }
+            }
+        }
+    }
+
+    private void upgradePhase(boolean full) {
+        if (selectedCell.player != players.get(playerTurn) || selectedCell.unit == selectedCell.maxUnit) {
+            if (!(players.get(playerTurn) instanceof BadBot))
+                System.err.println("Invalid choice!");
+            else {
+                badBot.nextIndex();
+//                selectedCell = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn);
+                selectedCell = badBot.upgrade(cells, players, playerTurn);
+                acceptInput("Bot:" + selectedCell.cellI + " " + selectedCell.cellJ);
+            }
+        } else {
+            if (full) {
+                int energyNeed = selectedCell.maxUnit - selectedCell.unit;
+                if (energyNeed > energy)
+                    energyNeed = energy;
+                energy -= energyNeed;
+                selectedCell.unit += energyNeed;
+            } else {
+                energy--;
+                selectedCell.unit++;
+            }
+            map.mapPrint(this);
+            print(outline, "energyLeft", energy);
+        }
+
+        if (energy <= 0) {
+            if (playerTurn >= players.size() - 1)
+                playerTurn = 0;
+            else
+                playerTurn++;
+            print(outline,"turn", players.get(playerTurn).name);
+            cellPhase = 0;
+//            boolean canTurn = false;
+//            check:
+//            {
+//                for (int i = 0; i < mapI; i++)
+//                    for (int j = 0; j < mapJ; j++)
+//                        if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
+//                            ArrayList<Cell> nearCells = cells[i][j].nearCells(cells);
+//                            for (Cell cell : nearCells)
+//                                if (cell != null && cell.player != players.get(playerTurn)) {
+//                                    canTurn = true;
+//                                    break check;
+//                                }
+//                        }
+//            }
+            int canTurn = canTurn();
+            if (players.get(playerTurn) instanceof BadBot) {
+                if (canTurn == 1) {
+                    badBot.resetIndex();
+//                    selectedCell = ((BadBot) players.get(playerTurn)).select(cells, players, playerTurn);
+                    selectedCell = badBot.select(cells, players, playerTurn);
+                    if (selectedCell.cellI == -1 && selectedCell.cellJ == -1)
+                        return;
+                    acceptInput("Bot:" + selectedCell.cellI + " " + selectedCell.cellJ);
+                } else {
+                    cellPhase = 2;
+                    badBot.resetIndex();
+                    energyCount();
+//                    selectedCell = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn);
+                    selectedCell = badBot.upgrade(cells, players, playerTurn);
+                    acceptInput("Bot:" + selectedCell.cellI + " " + selectedCell.cellJ);
+                }
+            }
+            else if (canTurn != 1) {
+                cellPhase = 2;
+                energyCount();
+                print(outline, "upgradePhase");
+                print(outline, "energyLeft", energy);
+            }
+        } else if (players.get(playerTurn) instanceof BadBot) {
+            badBot.nextIndex();
+//            selectedCell = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn);
+            selectedCell = badBot.upgrade(cells, players, playerTurn);
+            acceptInput("Bot:" + selectedCell.cellI + " " + selectedCell.cellJ);
+        }
+    }
+
+    private int canTurn() {
+        int canTurn = -1;
+        check:
+        {
+            for (int i = 0; i < mapI; i++)
+                for (int j = 0; j < mapJ; j++)
+                    if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn) && cells[i][j].unit != 1) {
+                        canTurn = 0;
+                        ArrayList<Cell> nearCells = cells[i][j].nearCells(cells);
+                        for (Cell cell : nearCells)
+                            if (cell != null && cell.player != players.get(playerTurn)) {
+                                canTurn = 1;
+                                break check;
+                            }
+                    }
+        }
+        return canTurn;
+    }
+
+    private void energyCount() {
+        energy = 0;
+        for (int i = 0; i < mapI; i++)
+            for (int j = 0; j < mapJ; j++)
+                if (cells[i][j] != null && cells[i][j].player == players.get(playerTurn))
+                    energy++;
     }
 
     private void getOutline() {
