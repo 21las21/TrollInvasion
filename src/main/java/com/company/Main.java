@@ -91,7 +91,8 @@ public class Main {
                                     System.out.println(name + ": gameList " + game.name + " " + game.players.size() + " notStarted");
                                 else
                                     System.out.println(name + ": gameList " + game.name + " " + game.players.size() + " started");
-                        }
+                        } else if (input[1].equals("-"))
+                            lobbyPlayers.remove(player);
                     }
                 } else {
                     if (input[1].equals("leaveGame")) {
@@ -112,8 +113,8 @@ public class Main {
                             }
                             player.game.acceptInput('-' + player.name);
                         }
-                    }
-                    else {
+
+                    } else {
                         for (Game game : games) {
                             if (!game.isFinished && game.name.equals(player.game.name)) {
 //                                boolean change = false;
@@ -130,6 +131,7 @@ public class Main {
                                 break;
                             }
                         }
+
                     }
                 }
             }
