@@ -498,11 +498,9 @@ class Game {
         if (selectedCell.unit < 2)
             selectedCell = memoryCell;
         ArrayList<Cell> nearCells = selectedCell.nearCells(cells);
-        for (Cell cell1 : nearCells) {
-            if (cell1 != null && cell1.player != players.get(playerTurn)) {
+        for (Cell cell1 : nearCells)
+            if (cell1 != null && cell1.player != players.get(playerTurn))
                 canTurn = true;
-            }
-        }
         if (!canTurn || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
             if (!(players.get(playerTurn) instanceof BadBot))
                 System.err.println("Invalid choice!");
@@ -520,7 +518,14 @@ class Game {
                 badBot.resetIndex();
                 Cell select = badBot.go(cells, players, playerTurn, selectedCell);
                 acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-            }
+            } //else {
+//                StringBuilder canMove = new StringBuilder();
+//                canMove.append(outline).append(" canMove ");
+//                for (Cell cell1 : nearCells)
+//                    if (cell1 != null && cell1.player != players.get(playerTurn))
+//                        canMove.append(cell1.cellI).append(' ').append(cell1.cellJ).append(' ');
+//                print(canMove.toString());
+//            }
         }
     }
 
