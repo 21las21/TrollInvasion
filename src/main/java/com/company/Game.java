@@ -111,8 +111,10 @@ class Game {
                         }
                     }
                     getOutline();
-                    if (!check)
+                    if (!check) {
                         leaveAll();
+                        return;
+                    }
                     for (Cell[] cellRaw : cells)
                         for (Cell cellCheck : cellRaw)
                             if (cellCheck != null && cellCheck.player != null && cellCheck.player.equals(player))
@@ -518,14 +520,14 @@ class Game {
                 badBot.resetIndex();
                 Cell select = badBot.go(cells, players, playerTurn, selectedCell);
                 acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-            } //else {
-//                StringBuilder canMove = new StringBuilder();
-//                canMove.append(outline).append(" canMove ");
-//                for (Cell cell1 : nearCells)
-//                    if (cell1 != null && cell1.player != players.get(playerTurn))
-//                        canMove.append(cell1.cellI).append(' ').append(cell1.cellJ).append(' ');
-//                print(canMove.toString());
-//            }
+            }else {
+                StringBuilder canMove = new StringBuilder();
+                canMove.append(outline).append(" canMove ");
+                for (Cell cell1 : nearCells)
+                    if (cell1 != null && cell1.player != players.get(playerTurn))
+                        canMove.append(cell1.cellI).append(' ').append(cell1.cellJ).append(' ');
+                print(canMove.toString());
+            }
         }
     }
 
@@ -738,20 +740,21 @@ class Game {
                 line.append(player1.name).append(',');
         for (Player player1 : spectators)
             line.append(player1.name).append(',');
-        line.deleteCharAt(line.length() - 1).append(':');
+        if (line.length() > 1)
+            line.deleteCharAt(line.length() - 1).append(':');
         outline = line.toString();
     }
 
     private void leaveAll() {
         for (Player player : players) {
             if (!(player instanceof BadBot)) {
-                print(outline + " gameLeft", player.name);
                 getOutline();
+                print(outline + " gameLeft", player.name);
             }
         }
         for (Player player : spectators) {
-            print(outline + " gameLeft", player.name);
             getOutline();
+            print(outline + " gameLeft", player.name);
         }
     }
 }
