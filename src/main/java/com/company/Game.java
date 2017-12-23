@@ -599,10 +599,21 @@ class Game {
                         return;
                     acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                 } else {
-                    if (goCell.unit > 1) {
-                        acceptInput(goCell.player.name + ":" + goCell.cellI + " " + goCell.cellJ);
-                    } else if (goCell.unit == 1) {
+                    boolean check = false;
+                    nearCells = goCell.nearCells(cells);
+                    for (Cell cell : nearCells)
+                        if (cell.player == null || cell.player != players.get(playerTurn)) {
+                            check = true;
+                            break;
+                        }
+                    if (!check) {
                         print(outline, "deselectCell");
+                    } else {
+                        if (goCell.unit > 1) {
+                            acceptInput(goCell.player.name + ":" + goCell.cellI + " " + goCell.cellJ);
+                        } else if (goCell.unit == 1) {
+                            print(outline, "deselectCell");
+                        }
                     }
                 }
             }
