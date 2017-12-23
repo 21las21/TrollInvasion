@@ -10,7 +10,7 @@ class Game {
     boolean isFinished = false;
     boolean isStarted = false;
     ArrayList<Player> players = new ArrayList<>();
-    private ArrayList<Player> spectators = new ArrayList<>();
+    ArrayList<Player> spectators = new ArrayList<>();
     private ArrayList<Player> playersRnd = new ArrayList<>();
     private ArrayList<Character> colors = new ArrayList<>();
     private StringBuilder line = new StringBuilder();
@@ -53,8 +53,10 @@ class Game {
                     print(outline, "spectatorJoin", playerName);
                 } else {
                     print(playerName + ": gameEntered", name, "player");
-                    for (Player player1 : players)
+                    for (Player player1 : players) {
                         print(outline, "readyStatus", player1.name, player1.ready);
+                        print(outline, "playerColor", player1.name, player1.color);
+                    }
                 }
             }
         } else if (phase == 1) { //Player left
@@ -67,6 +69,7 @@ class Game {
                 index++;
             }
             if (player == null) {
+                index = 0;
                 for (Player player1 : spectators) {
                     if (player1.name.equals(playerName)) {
                         player = player1;
@@ -77,11 +80,18 @@ class Game {
                 if (player == null)
                     return;
             }
-            if (player.mode == 1) {
-                readyPlayers--;
+            if (player.mode == 1) { //Player leave
+                if (player.ready)
+                    readyPlayers--;
                 print(outline + " gameLeft", player.name);
                 if (!isStarted) {
                     players.remove(index);
+                    if (players.size() == 0)
+                        leaveAll();
+                    if (player.color != 0) {
+                        colors.remove(Character.valueOf(player.color));
+                        colorPlayers--;
+                    }
                     player.game = null;
                     getOutline();
                 }
@@ -93,7 +103,16 @@ class Game {
                     player.game = null;
                     badBot.color = player.color;
                     players.set(index, badBot);
+                    boolean check = false;
+                    for (Player player1 : players) {
+                        if (!(player1 instanceof BadBot)) {
+                            check = true;
+                            break;
+                        }
+                    }
                     getOutline();
+                    if (!check)
+                        leaveAll();
                     for (Cell[] cellRaw : cells)
                         for (Cell cellCheck : cellRaw)
                             if (cellCheck != null && cellCheck.player != null && cellCheck.player.equals(player))
@@ -137,7 +156,7 @@ class Game {
                         }
                     }
                 }
-            } else if (player.mode == 0) {
+            } else if (player.mode == 0) { //Spectator leave
                 spectators.remove(index);
                 print(outline + " gameLeft", player.name);
                 player.game = null;
@@ -247,6 +266,10 @@ class Game {
                 }
             }
             if (player != null && !colors.contains(playerColor)) {
+                if (player.color != 0) {
+                    colors.remove(Character.valueOf(player.color));
+                    colorPlayers--;
+                }
                 colorPlayers++;
                 colors.add(playerColor);
                 player.color = playerColor;
@@ -336,7 +359,7 @@ class Game {
             }
             selectedCell = playerCell;
             upgradePhase(true);
-        } else if (phase == 5) {
+        } else if (phase == 5) { //Real game
             check:
             {
                 if (!playerName.equals(players.get(playerTurn).name))
@@ -701,5 +724,18 @@ class Game {
             line.append(player1.name).append(',');
         line.deleteCharAt(line.length() - 1).append(':');
         outline = line.toString();
+    }
+
+    private void leaveAll() {
+        for (Player player : players) {
+            if (!(player instanceof BadBot)) {
+                print(outline + " gameLeft", player.name);
+                getOutline();
+            }
+        }
+        for (Player player : spectators) {
+            print(outline + " gameLeft", player.name);
+            getOutline();
+        }
     }
 }

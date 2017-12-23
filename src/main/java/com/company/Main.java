@@ -55,6 +55,7 @@ public class Main {
                                     game.name = gameName;
                                     players.add(player);
                                     lobbyPlayers.remove(player);
+                                    player.mode = 1;
 //                                    StringBuilder playersLine = new StringBuilder();
 //                                    for (Player player1 : lobbyPlayers)
 //                                        playersLine.append(player1.name).append(',');
@@ -76,6 +77,7 @@ public class Main {
                                             players.add(player);
                                             lobbyPlayers.remove(player);
                                             player.game = game;
+                                            player.mode = 0;
                                             game.acceptInput("+" + name + " spectator");
                                         } else if (line.endsWith(" player")) {
                                             int memoryPlayers = game.players.size();
@@ -84,6 +86,7 @@ public class Main {
                                                 players.add(player);
                                                 lobbyPlayers.remove(player);
                                                 player.game = game;
+                                                player.mode = 1;
                                             }
                                         }
                                         break;
@@ -106,18 +109,27 @@ public class Main {
                         for (Player player1 : player.game.players)
                             if (!(player1 instanceof BadBot))
                                 gamePlayers.add(player1);
-                        remove:
-                        {
-                            if (gamePlayers.size() == 1) {
+//                        remove:
+//                        {
+                            if (gamePlayers.size() == 1 && player.mode == 1) {
                                 games.remove(player.game);
-                                player.game = null;
-                                player.mode = -1;
-                                System.out.println(name + ": gameLeft " + name);
-                                break remove;
+                                gamePlayers.remove(player);
+                                gamePlayers.addAll(player.game.spectators);
+                                for (Player player1 : gamePlayers) {
+                                    player1.game = null;
+                                    player1.mode = -1;
+                                    players.remove(player1);
+                                    lobbyPlayers.add(player1);
+                                }
+//                                player.game = null;
+//                                player.mode = -1;
+//                                System.out.println(name + ": gameLeft " + name);
+//                                break remove;
                             }
                             player.game.acceptInput('-' + player.name);
-                        }
-
+                            player.game = null;
+                            player.mode = -1;
+//                        }
                     } else {
                         for (Game game : games) {
                             if (!game.isFinished && game.name.equals(player.game.name)) {
