@@ -27,7 +27,7 @@ class Game {
     private int mapI;
     private int mapJ;
 
-    private void gameTurn(String playerName, int phase, char playerColor, Cell playerCell, int playerMode) {
+    private void gameTurn(String playerName, int phase, char playerColor, Cell playerCell, int playerMode, String message) {
         Player player = null;
         if (phase == 0) { //Player join
             for (Player player1 : players)
@@ -51,12 +51,11 @@ class Game {
                 if (playerMode == 0) {
                     print(playerName + ": gameEntered", name, "spectator");
                     print(outline, "spectatorJoin", playerName);
-                } else {
+                } else
                     print(playerName + ": gameEntered", name, "player");
-                    for (Player player1 : players) {
-                        print(outline, "readyStatus", player1.name, player1.ready);
-                        print(outline, "playerColor", player1.name, player1.color);
-                    }
+                for (Player player1 : players) {
+                    print(outline, "readyStatus", player1.name, player1.ready);
+                    print(outline, "playerColor", player1.name, player1.color);
                 }
             }
         } else if (phase == 1) { //Player left
@@ -361,6 +360,8 @@ class Game {
             }
             selectedCell = playerCell;
             upgradePhase(true);
+        } else if (phase == 10) {
+            print(outline, "chat", playerName, message);
         } else if (phase == 5) { //Real game
             check:
             {
@@ -402,7 +403,7 @@ class Game {
 
     void acceptInput(String input) {
         char color = 0;
-        String player = null;
+        String player = null, message = null;
         Cell cell = null;
         int phase = -1;
         int playerMode = -1;
@@ -443,17 +444,20 @@ class Game {
                 } else if (!isStarted && inputs[1].toLowerCase().equals("unready")) {
                     phase = 6; //Player unready
                 } else if (isStarted && inputs[1].startsWith("hover")) {
-                    input = inputs[1].split(" ")[1];
-                    if (input.equals("none")) {
-                        phase = 9; //Hover none
-                    } else {
-                        try {
-                            cell = getCellFromMessage(inputs[1].substring("hover ".length())).cell;
-                        } catch (Exception e) {
-                            return;
+                    inputs = inputs[1].split(" ");
+                    if (inputs.length == 2) {
+                        input = inputs[1];
+                        if (input.equals("none")) {
+                            phase = 9; //Hover none
+                        } else {
+                            try {
+                                cell = getCellFromMessage(inputs[1].substring("hover ".length())).cell;
+                            } catch (Exception e) {
+                                return;
+                            }
+                            if (cell != null)
+                                phase = 7; //Hover over cell
                         }
-                        if (cell != null)
-                            phase = 7; //Hover over cell
                     }
                 } else if (isStarted && inputs[1].startsWith("fullUp")) {
                     try {
@@ -463,6 +467,17 @@ class Game {
                     }
                     if (cell != null)
                         phase = 8; //Full upgrade
+                } else if (inputs[1].startsWith("chat")) {
+//                    inputs = inputs[1].split(" ");
+//                    if (inputs.length >= 2) {
+//                        message = inputs[1];
+                    try {
+                        message = inputs[1].substring("chat ".length());
+                    } catch (Exception e) {
+                        return;
+                    }
+                    phase = 10; //Chat
+//                    }
                 } else {
                     try {
 //                        cell = getCellFromMessage(input).cell;
@@ -476,7 +491,7 @@ class Game {
                 }
             }
         }
-        gameTurn(player, phase, color, cell, playerMode);
+        gameTurn(player, phase, color, cell, playerMode, message);
     }
 
     private static Answer getCellFromMessage(String message) {
