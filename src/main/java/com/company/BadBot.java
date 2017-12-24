@@ -36,7 +36,7 @@ class BadBot extends Player {
 
     void nextIndex() {index++;}
 
-    private ArrayList<Cell> allPlayerMovableCells(Cell[][] cells, ArrayList<Player> players, int playerTurn) {
+    ArrayList<Cell> allPlayerMovableCells(Cell[][] cells, ArrayList<Player> players, int playerTurn) {
         ArrayList<Cell> allPlayerCells = new ArrayList<>();
 
         for (Cell[] cells1 : cells)
@@ -57,6 +57,15 @@ class BadBot extends Player {
                 }
             }
         return allPlayerCells;
+    }
+
+    ArrayList<Cell> allPlayerUpgradableCells(Cell[][] cells, ArrayList<Player> players, int playerTurn) {
+        ArrayList<Cell> allUpgradableCells = new ArrayList<>();
+        for (Cell[] cells1 : cells)
+            for (Cell cell : cells1)
+                if (cell != null && cell.player == players.get(playerTurn) && cell.unit < cell.maxUnit)
+                    allUpgradableCells.add(cell);
+        return allUpgradableCells;
     }
 
     private ArrayList<Cell> allPlayerCells(Cell[][] cells, ArrayList<Player> players, int playerTurn) {

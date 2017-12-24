@@ -107,7 +107,7 @@ public class Main {
                         lobbyPlayers.add(player);
                         ArrayList<Player> gamePlayers = new ArrayList<>();
                         for (Player player1 : player.game.players)
-                            if (!(player1 instanceof BadBot))
+                            if (!(player1 instanceof BadBot) && !(player1 instanceof Bot))
                                 gamePlayers.add(player1);
 //                        remove:
 //                        {
@@ -136,7 +136,13 @@ public class Main {
 //                                boolean change = false;
 //                                if (!game.isStarted)
 //                                    change = true;
-                                game.acceptInput(line);
+                                try {
+                                    game.acceptInput(line);
+                                } catch (Exception e) {
+                                    System.err.println("ERROR!!! PLEASE REPORT!!!");
+                                    game.leaveAll();
+                                    games.remove(game);
+                                }
 //                                if (!game.isStarted)
 //                                    change = false;
 //                                if (change)

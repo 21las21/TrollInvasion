@@ -15,6 +15,7 @@ class Game {
     private ArrayList<Character> colors = new ArrayList<>();
     private StringBuilder line = new StringBuilder();
     private BadBot badBot = new BadBot("Bot", true);
+    private Bot bot = new Bot("Bot", true);
     private Cell selectedCell = null;
     Cell[][] cells;
     private Map map;
@@ -22,7 +23,7 @@ class Game {
     private int colorPlayers = 0;
     private int cellPhase = 0;
     private int playerTurn = 0;
-    private int energy = 0;
+    int energy = 0;
 //    private int indexBot = 0;
     private int mapI;
     private int mapJ;
@@ -100,11 +101,11 @@ class Game {
 //                }
                 if (isStarted) {
                     player.game = null;
-                    badBot.color = player.color;
-                    players.set(index, badBot);
+                    bot.color = player.color;
+                    players.set(index, bot);
                     boolean check = false;
                     for (Player player1 : players) {
-                        if (!(player1 instanceof BadBot)) {
+                        if (!(player1 instanceof BadBot) && !(player1 instanceof Bot)) {
                             check = true;
                             break;
                         }
@@ -155,6 +156,32 @@ class Game {
                                 acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                             }
                         }
+                    } else if (players.get(playerTurn) instanceof Bot) {
+                        int canTurn = canTurn();
+                        if (canTurn != -1) {
+                            cellPhase = 0;
+                            bot.go(cells, players, playerTurn);
+//                            selectPhase();
+//                            Cell[] step = bot.go(cells, players, playerTurn);
+//                            acceptInput(bot.name + ":" + step[0].cellI + " " + step[0].cellJ);
+//                            acceptInput(bot.name + ":" + step[1].cellI + " " + step[1].cellJ);
+                        } else {
+                            energyCount();
+                            cellPhase = 2; //Upgrade cell
+                            print(outline, "upgradePhase");
+                            print(players.get(playerTurn).name + ":", "energyLeft", energy);
+                            bot.upgrade(cells, players, playerTurn);
+//                            upgradePhase(false);
+//                            Cell[] upgrades = bot.upgrade(cells, players, playerTurn);
+//                            for (Cell cell : upgrades)
+//                                acceptInput(bot.name + ":" + cell.cellI + " " + cell.cellJ);
+                        }
+                    } else {
+                        int canTurn = canTurn();
+                        if (canTurn != -1)
+                            printCanMoveCells(0, null);
+                        else
+                            printCanMoveCells(2, null);
                     }
                 }
             } else if (player.mode == 0) { //Spectator leave
@@ -184,9 +211,12 @@ class Game {
                     }
                     players = playersRnd;
                     print(outline, "gameStart");
-                    BadBot badBot = new BadBot("Bot", true);
-                    if (readyPlayers == 1)
-                        players.add(0, badBot);
+//                    BadBot badBot = new BadBot("Bot", true);
+                    if (readyPlayers == 1) {
+                        players.add(0, bot);
+                        bot.game = this;
+//                        players.add(0, badBot);
+                    }
                     Iterator<Player> iterator = players.iterator();
                     for (int i = 0; colorPlayers < players.size(); i++) {
                         if (!colors.contains((char) ('A' + i)) && iterator.hasNext()) {
@@ -245,6 +275,32 @@ class Game {
                                 acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                             }
                         }
+                    } else if (players.get(playerTurn) instanceof Bot) {
+                        int canTurn = canTurn();
+                        if (canTurn != -1) {
+                            cellPhase = 0;
+                            bot.go(cells, players, playerTurn);
+//                            selectPhase();
+//                            Cell[] step = bot.go(cells, players, playerTurn);
+//                            acceptInput(bot.name + ":" + step[0].cellI + " " + step[0].cellJ);
+//                            acceptInput(bot.name + ":" + step[1].cellI + " " + step[1].cellJ);
+                        } else {
+                            energyCount();
+                            cellPhase = 2;
+                            print(outline, "upgradePhase");
+                            print(players.get(playerTurn).name + ":", "energyLeft", energy);
+                            bot.upgrade(cells, players, playerTurn);
+//                            upgradePhase(false);
+//                            Cell[] upgrades = bot.upgrade(cells, players, playerTurn);
+//                            for (Cell cell : upgrades)
+//                                acceptInput(bot.name + ":" + cell.cellI + " " + cell.cellJ);
+                        }
+                    } else {
+                        int canTurn = canTurn();
+                        if (canTurn != -1)
+                            printCanMoveCells(0, null);
+                        else
+                            printCanMoveCells(2, null);
                     }
                 }
             }
@@ -320,12 +376,25 @@ class Game {
                     } else if (cellPhase == 2) {
 //                    } else {
                         energyCount();
-                        cellPhase = 2;
                         badBot.resetIndex();
                         Cell select = badBot.upgrade(cells, players, playerTurn);
                         acceptInput("Bot:" + select.cellI + " " + select.cellJ);
                     }
 //                    }
+                } else if (players.get(playerTurn) instanceof Bot) {
+                    if (cellPhase == 0) {
+//                        selectPhase();
+                        bot.go(cells, players, playerTurn);
+                    } else if (cellPhase == 2) {
+                        bot.upgrade(cells, players, playerTurn);
+//                        energyCount();
+//                        upgradePhase(false);
+                    }
+                } else {
+                    if (cellPhase == 0)
+                        printCanMoveCells(0, null);
+                    else if (cellPhase == 2)
+                        printCanMoveCells(2, null);
                 }
             } else { //Select cell or Go cell
                 energyCount();
@@ -336,7 +405,11 @@ class Game {
                     badBot.resetIndex();
                     Cell select = badBot.upgrade(cells, players, playerTurn);
                     acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-                }
+                } else if (players.get(playerTurn) instanceof Bot) {
+                    bot.upgrade(cells, players, playerTurn);
+//                    upgradePhase(false);
+                } else
+                    printCanMoveCells(2, null);
             }
         } else if (phase == 7) { //Hover over cell
 //            if (playerName.equals(players.get(playerTurn).name))
@@ -360,7 +433,7 @@ class Game {
             }
             selectedCell = playerCell;
             upgradePhase(true);
-        } else if (phase == 10) {
+        } else if (phase == 10) { //Chat
             print(outline, "chat", playerName, message);
         } else if (phase == 5) { //Real game
             check:
@@ -444,9 +517,9 @@ class Game {
                 } else if (!isStarted && inputs[1].toLowerCase().equals("unready")) {
                     phase = 6; //Player unready
                 } else if (isStarted && inputs[1].startsWith("hover")) {
-                    inputs = inputs[1].split(" ");
-                    if (inputs.length == 2) {
-                        input = inputs[1];
+//                    inputs = inputs[1].split(" ");
+                    if (inputs[1].split(" ").length >= 2) {
+                        input = inputs[1].split(" ")[1];
                         if (input.equals("none")) {
                             phase = 9; //Hover none
                         } else {
@@ -521,12 +594,14 @@ class Game {
         if (!canTurn || selectedCell.player != players.get(playerTurn) || selectedCell.unit < 2) {
             if (!(players.get(playerTurn) instanceof BadBot))
                 System.err.println("Invalid choice!");
-            else {
+            else if (players.get(playerTurn) instanceof BadBot) {
                 badBot.nextIndex();
                 Cell select = badBot.select(cells, players, playerTurn);
                 if (select.cellI == -1 && select.cellJ == -1)
                     return;
                 acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+            } else {
+                printCanMoveCells(0, null);
             }
         } else {
             print(outline,"selectCell", selectedCell.cellI, selectedCell.cellJ);
@@ -535,13 +610,8 @@ class Game {
                 badBot.resetIndex();
                 Cell select = badBot.go(cells, players, playerTurn, selectedCell);
                 acceptInput("Bot:" + select.cellI + " " + select.cellJ);
-            }else {
-                StringBuilder canMove = new StringBuilder();
-                canMove.append(outline).append(" canMove ");
-                for (Cell cell1 : nearCells)
-                    if (cell1 != null && cell1.player != players.get(playerTurn))
-                        canMove.append(cell1.cellI).append(' ').append(cell1.cellJ).append(' ');
-                print(canMove.toString());
+            } else {
+                printCanMoveCells(1, selectedCell);
             }
         }
     }
@@ -557,8 +627,7 @@ class Game {
             if (!(players.get(playerTurn) instanceof BadBot)) {
                 System.err.println("Invalid choice!");
                 selectedCell = startCell;
-            }
-            else {
+            } else if (players.get(playerTurn) instanceof BadBot){
                 badBot.nextIndex();
                 selectedCell = startCell;
                 Cell select = badBot.go(cells, players, playerTurn, startCell);
@@ -569,14 +638,12 @@ class Game {
             boolean enemyExist = false;
             check:
             {
-                for (int i = 0; i < mapI; i++) {
-                    for (int j = 0; j < mapJ; j++) {
+                for (int i = 0; i < mapI; i++)
+                    for (int j = 0; j < mapJ; j++)
                         if (cells[i][j] != null && cells[i][j].player != null && cells[i][j].player != players.get(playerTurn)) {
                             enemyExist = true;
                             break check;
                         }
-                    }
-                }
             }
             map.mapPrint(this);
             if (!enemyExist) {
@@ -611,6 +678,10 @@ class Game {
                     badBot.resetIndex();
                     Cell select = badBot.upgrade(cells, players, playerTurn);
                     acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                } else if (players.get(playerTurn) instanceof Bot) {
+                    bot.upgrade(cells, players, playerTurn);
+                } else {
+                    printCanMoveCells(2, null);
                 }
             } else {
                 cellPhase--;
@@ -620,6 +691,8 @@ class Game {
                     if (select.cellI == -1 && select.cellJ == -1)
                         return;
                     acceptInput("Bot:" + select.cellI + " " + select.cellJ);
+                } else if (players.get(playerTurn) instanceof Bot) {
+                    bot.go(cells, players, playerTurn);
                 } else {
                     boolean check = false;
                     nearCells = goCell.nearCells(cells);
@@ -629,11 +702,13 @@ class Game {
                             break;
                         }
                     if (!check) {
+                        printCanMoveCells(0, null);
                         print(outline, "deselectCell");
                     } else {
                         if (goCell.unit > 1) {
                             acceptInput(goCell.player.name + ":" + goCell.cellI + " " + goCell.cellJ);
                         } else if (goCell.unit == 1) {
+                            printCanMoveCells(0, null);
                             print(outline, "deselectCell");
                         }
                     }
@@ -646,11 +721,13 @@ class Game {
         if (selectedCell.player != players.get(playerTurn) || selectedCell.unit == selectedCell.maxUnit) {
             if (!(players.get(playerTurn) instanceof BadBot))
                 System.err.println("Invalid choice!");
-            else {
+            else if (players.get(playerTurn) instanceof BadBot){
                 badBot.nextIndex();
 //                selectedCell = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn);
                 selectedCell = badBot.upgrade(cells, players, playerTurn);
                 acceptInput("Bot:" + selectedCell.cellI + " " + selectedCell.cellJ);
+            } else if (players.get(playerTurn) instanceof Bot) {
+                bot.upgrade(cells, players, playerTurn);
             }
         } else {
             if (full) {
@@ -665,6 +742,7 @@ class Game {
             }
             map.mapPrint(this);
             print(outline, "energyLeft", energy);
+            printCanMoveCells(2, null);
         }
 
         if (energy <= 0) {
@@ -705,18 +783,57 @@ class Game {
                     selectedCell = badBot.upgrade(cells, players, playerTurn);
                     acceptInput("Bot:" + selectedCell.cellI + " " + selectedCell.cellJ);
                 }
-            }
-            else if (canTurn != 1) {
-                cellPhase = 2;
-                energyCount();
-                print(outline, "upgradePhase");
-                print(outline, "energyLeft", energy);
+            } else if (players.get(playerTurn) instanceof Bot) {
+                if (canTurn == 1) {
+                    bot.go(cells, players, playerTurn);
+                } else {
+                    cellPhase = 2;
+                    energyCount();
+                    bot.upgrade(cells, players, playerTurn);
+                }
+            } else {
+                if (canTurn == 1) {
+                    printCanMoveCells(0, null);
+                } else {
+                    cellPhase = 2;
+                    energyCount();
+                    print(outline, "upgradePhase");
+                    print(outline, "energyLeft", energy);
+                    printCanMoveCells(2, null);
+                }
             }
         } else if (players.get(playerTurn) instanceof BadBot) {
             badBot.nextIndex();
 //            selectedCell = ((BadBot) players.get(playerTurn)).upgrade(cells, players, playerTurn);
             selectedCell = badBot.upgrade(cells, players, playerTurn);
             acceptInput("Bot:" + selectedCell.cellI + " " + selectedCell.cellJ);
+        }
+    }
+
+    private void printCanMoveCells(int mode, Cell start) {
+        if (mode == 0) {//Select
+            ArrayList<Cell> selectCells = badBot.allPlayerMovableCells(cells, players, playerTurn);
+            StringBuilder select = new StringBuilder();
+            select.append(outline).append("canMove");
+            for (Cell cell : selectCells) {
+                select.append(' ').append(cell.cellI).append(' ').append(cell.cellJ);
+            }
+            print(select.toString());
+        } else if (mode == 1) { //Go
+            StringBuilder canMove = new StringBuilder();
+            canMove.append(outline).append("canMove");
+            ArrayList<Cell> nearCells = start.nearCells(cells);
+            for (Cell cell1 : nearCells)
+                if (cell1 != null && cell1.player != players.get(playerTurn))
+                    canMove.append(' ').append(cell1.cellI).append(' ').append(cell1.cellJ);
+            print(canMove.toString());
+        } else if (mode == 2) { //Upgrade
+            ArrayList<Cell> upgradableCells = badBot.allPlayerUpgradableCells(cells, players, playerTurn);
+            StringBuilder upCells = new StringBuilder();
+            upCells.append(outline).append("canMove");
+            for (Cell cell : upgradableCells)
+                upCells.append(' ').append(cell.cellI).append(' ').append(cell.cellJ);
+            print(upCells.toString());
         }
     }
 
@@ -739,7 +856,7 @@ class Game {
         return canTurn;
     }
 
-    private void energyCount() {
+    void energyCount() {
         energy = 0;
         for (int i = 0; i < mapI; i++)
             for (int j = 0; j < mapJ; j++)
@@ -751,7 +868,7 @@ class Game {
 //        String outline;
         line.delete(0, line.length());
         for (Player player1 : players)
-            if (!(player1 instanceof BadBot))
+            if (!(player1 instanceof BadBot) && !(player1 instanceof Bot))
                 line.append(player1.name).append(',');
         for (Player player1 : spectators)
             line.append(player1.name).append(',');
@@ -760,9 +877,9 @@ class Game {
         outline = line.toString();
     }
 
-    private void leaveAll() {
+    void leaveAll() {
         for (Player player : players) {
-            if (!(player instanceof BadBot)) {
+            if (!(player instanceof BadBot) && !(player instanceof Bot)) {
                 getOutline();
                 print(outline + " gameLeft", player.name);
             }

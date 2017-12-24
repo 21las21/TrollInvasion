@@ -4,6 +4,23 @@ import java.util.ArrayList;
 import java.util.Random;
 
 class Cell {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Cell cell = (Cell) o;
+
+        return cellI == cell.cellI && cellJ == cell.cellJ;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = cellI;
+        result = 31 * result + cellJ;
+        return result;
+    }
+
     Player player;
     int unit;
     int maxUnit = 8;
