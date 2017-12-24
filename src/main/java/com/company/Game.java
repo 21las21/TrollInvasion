@@ -56,7 +56,8 @@ class Game {
                     print(playerName + ": gameEntered", name, "player");
                 for (Player player1 : players) {
                     print(outline, "readyStatus", player1.name, player1.ready);
-                    print(outline, "playerColor", player1.name, player1.color);
+                    if (player1.color != 0)
+                        print(outline, "playerColor", player1.name, player1.color);
                 }
             }
         } else if (phase == 1) { //Player left
