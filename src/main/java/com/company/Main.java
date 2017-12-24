@@ -1,5 +1,6 @@
 package com.company;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -140,8 +141,7 @@ public class Main {
                                     game.acceptInput(line);
                                 } catch (Exception e) {
                                     System.err.println("--------------------------");
-                                    System.err.println(e.getMessage());
-                                    System.err.println(e.getLocalizedMessage());
+                                    e.printStackTrace();
                                     System.err.println("ERROR!!! PLEASE REPORT!!!");
                                     System.err.println("--------------------------");
                                     game.leaveAll();

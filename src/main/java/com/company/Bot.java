@@ -88,7 +88,8 @@ class Bot extends Player {
         }
         for (Cell cell : upCells) {
 //            Thread.sleep(100);
-            game.acceptInput(name + ":" + cell.cellI + " " + cell.cellJ);
+            if (cell != null)
+                game.acceptInput(name + ":" + cell.cellI + " " + cell.cellJ);
         }
         if (!full)
             game.acceptInput(name + ":next phase");
