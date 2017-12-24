@@ -1,5 +1,6 @@
 package com.company;
 
+import java.io.CharArrayReader;
 import java.util.ArrayList;
 
 class Bot extends Player {
@@ -65,7 +66,7 @@ class Bot extends Player {
     void upgrade(Cell[][] cells, ArrayList<Player> players, int playerTurn) throws InterruptedException {
         game.energyCount();
         Cell[][] copyCells = copyCells(cells);
-        Cell[] upCells = new Cell[game.energy];
+        ArrayList<Cell> upCells = new ArrayList<>();
         ArrayList<Cell> sideCells = allPlayerSideCells(copyCells, players, playerTurn);
         int energyUsed = 0;
         boolean full = true;
@@ -75,7 +76,7 @@ class Bot extends Player {
                 for (Cell cell : sideCells) {
                     if (energyUsed == game.energy)
                         break energyUse;
-                    upCells[energyUsed] = cell;
+                    upCells.add(cell);
                     copyCells[cell.cellI][cell.cellJ].unit++;
                     energyUsed++;
                 }
@@ -88,8 +89,7 @@ class Bot extends Player {
         }
         for (Cell cell : upCells) {
 //            Thread.sleep(100);
-            if (cell != null)
-                game.acceptInput(name + ":" + cell.cellI + " " + cell.cellJ);
+            game.acceptInput(name + ":" + cell.cellI + " " + cell.cellJ);
         }
         if (!full)
             game.acceptInput(name + ":next phase");
