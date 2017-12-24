@@ -28,7 +28,7 @@ class Game {
     private int mapI;
     private int mapJ;
 
-    private void gameTurn(String playerName, int phase, char playerColor, Cell playerCell, int playerMode, String message) {
+    private void gameTurn(String playerName, int phase, char playerColor, Cell playerCell, int playerMode, String message) throws InterruptedException {
         Player player = null;
         if (phase == 0) { //Player join
             for (Player player1 : players)
@@ -474,7 +474,7 @@ class Game {
         System.out.println(line);
     }
 
-    void acceptInput(String input) {
+    void acceptInput(String input) throws InterruptedException {
         char color = 0;
         String player = null, message = null;
         Cell cell = null;
@@ -582,7 +582,7 @@ class Game {
         }
     }
 
-    private void selectPhase() {
+    private void selectPhase() throws InterruptedException {
         boolean canTurn = false;
         Cell memoryCell = selectedCell;
         if (selectedCell.unit < 2)
@@ -616,7 +616,7 @@ class Game {
         }
     }
 
-    private void goPhase(Cell startCell) {
+    private void goPhase(Cell startCell) throws InterruptedException {
         Cell goCell = selectedCell;
         ArrayList<Cell> nearCells = startCell.nearCells(cells);
         boolean mine = (goCell.player != null && goCell.player.equals(players.get(playerTurn)));
@@ -717,7 +717,7 @@ class Game {
         }
     }
 
-    private void upgradePhase(boolean full) {
+    private void upgradePhase(boolean full) throws InterruptedException {
         if (selectedCell.player != players.get(playerTurn) || selectedCell.unit == selectedCell.maxUnit) {
             if (!(players.get(playerTurn) instanceof BadBot))
                 System.err.println("Invalid choice!");

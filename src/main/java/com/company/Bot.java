@@ -8,7 +8,7 @@ class Bot extends Player {
         super(name, ready);
     }
 
-    void go(Cell[][] cells, ArrayList<Player> players, int playerTurn) {
+    void go(Cell[][] cells, ArrayList<Player> players, int playerTurn) throws InterruptedException {
 //        ArrayList<Cell> outputs = new ArrayList<>();
 //        ArrayList<Integer> controlCells = new ArrayList<>();
 //        ArrayList<ArrayList<Cell[]>> cellsStep = new ArrayList<>();
@@ -55,12 +55,14 @@ class Bot extends Player {
             copyCells = copyCells(cells);
         }
         bestStep = findCells(bestStep[0], bestStep[1], cells);
+//        Thread.sleep(500);
         game.acceptInput(name + ":" + bestStep[0].cellI + " " + bestStep[0].cellJ);
+//        Thread.sleep(500);
         game.acceptInput(name + ":" + bestStep[1].cellI + " " + bestStep[1].cellJ);
 //        return bestStep;
     }
 
-    void upgrade(Cell[][] cells, ArrayList<Player> players, int playerTurn) {
+    void upgrade(Cell[][] cells, ArrayList<Player> players, int playerTurn) throws InterruptedException {
         game.energyCount();
         Cell[][] copyCells = copyCells(cells);
         Cell[] upCells = new Cell[game.energy];
@@ -84,8 +86,10 @@ class Bot extends Player {
                 }
             }
         }
-        for (Cell cell : upCells)
+        for (Cell cell : upCells) {
+//            Thread.sleep(100);
             game.acceptInput(name + ":" + cell.cellI + " " + cell.cellJ);
+        }
         if (!full)
             game.acceptInput(name + ":next phase");
 //        return upCells;

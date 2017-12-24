@@ -139,7 +139,11 @@ public class Main {
                                 try {
                                     game.acceptInput(line);
                                 } catch (Exception e) {
+                                    System.err.println("--------------------------");
+                                    System.err.println(e.getMessage());
+                                    System.err.println(e.getLocalizedMessage());
                                     System.err.println("ERROR!!! PLEASE REPORT!!!");
+                                    System.err.println("--------------------------");
                                     game.leaveAll();
                                     games.remove(game);
                                 }

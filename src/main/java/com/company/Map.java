@@ -25,6 +25,7 @@ class Map {
             }
             print(game.outline,"mapLine", i, line.substring(0, line.length() - 1));
         }
+        print(game.outline, "endMap");
     }
 
 //    public Cell[][] map1Cells(ArrayList<Player> players) {
